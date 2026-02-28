@@ -1,0 +1,351 @@
+{
+    "genesis_time": "2026-02-01T00:00:00.000000000Z",
+    "chain_id": "rapha-1",
+    "initial_height": "1",
+    "consensus_params": {
+        "block": {
+            "max_bytes": "22020096",
+            "max_gas": "100000000",
+            "time_iota_ms": "1000"
+        },
+        "evidence": {
+            "max_age_num_blocks": "100000",
+            "max_age_duration": "172800000000000",
+            "max_bytes": "1048576"
+        },
+        "validator": {
+            "pub_key_types": [
+                "ed25519"
+            ]
+        },
+        "version": {
+            "app": "1"
+        }
+    },
+    "validators": [
+        {
+            "address": "raphvalcons1ed1nburgh000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_EDINBURGH_PUBKEY"
+            },
+            "power": "100",
+            "name": "University of Edinburgh Medical Informatics"
+        },
+        {
+            "address": "raphvalcons1hku0000000000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_HKU_PUBKEY"
+            },
+            "power": "100",
+            "name": "HKU Centre for Genomic Sciences"
+        },
+        {
+            "address": "raphvalcons1cuhk000000000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_CUHK_PUBKEY"
+            },
+            "power": "100",
+            "name": "CUHK Medical Centre"
+        },
+        {
+            "address": "raphvalcons1nhsdigital0000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_NHS_PUBKEY"
+            },
+            "power": "50",
+            "name": "NHS Digital (Regulatory Audit)"
+        },
+        {
+            "address": "raphvalcons1pharma00000000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_PHARMA_PUBKEY"
+            },
+            "power": "75",
+            "name": "Pharma Consortium Node"
+        },
+        {
+            "address": "raphvalcons1wellcome0000000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_WELLCOME_PUBKEY"
+            },
+            "power": "75",
+            "name": "Wellcome Trust (Patient Advocate)"
+        },
+        {
+            "address": "raphvalcons1patientdao000000000000000001",
+            "pub_key": {
+                "type": "tendermint/PubKeyEd25519",
+                "value": "PLACEHOLDER_DAO_PUBKEY"
+            },
+            "power": "50",
+            "name": "Rapha Patient DAO"
+        }
+    ],
+    "app_state": {
+        "auth": {
+            "params": {
+                "max_memo_characters": "256",
+                "tx_sig_limit": "7",
+                "tx_size_cost_per_byte": "10",
+                "sig_verify_cost_ed25519": "590",
+                "sig_verify_cost_secp256k1": "1000"
+            },
+            "accounts": []
+        },
+        "bank": {
+            "params": {
+                "send_enabled": [],
+                "default_send_enabled": true
+            },
+            "balances": [
+                {
+                    "address": "rapha1paymaster00000000000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "250000000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1validatorrewards0000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "400000000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1teamfoundation00000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "150000000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1ecosystemgrants00000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "100000000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1migratedairdrop0000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "100000000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1dev1edinburgh000000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "100000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1dev2hku00000000000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "100000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "address": "rapha1dev3cuhk0000000000000000001",
+                    "coins": [
+                        {
+                            "denom": "urapha",
+                            "amount": "100000000000000000"
+                        }
+                    ]
+                }
+            ],
+            "supply": [
+                {
+                    "denom": "urapha",
+                    "amount": "1000000000000000000000"
+                }
+            ],
+            "denom_metadata": [
+                {
+                    "description": "The native staking and fee token of Rapha Chain",
+                    "denom_units": [
+                        {
+                            "denom": "urapha",
+                            "exponent": 0,
+                            "aliases": [
+                                "microrapha"
+                            ]
+                        },
+                        {
+                            "denom": "mrapha",
+                            "exponent": 3,
+                            "aliases": [
+                                "millirapha"
+                            ]
+                        },
+                        {
+                            "denom": "rapha",
+                            "exponent": 6,
+                            "aliases": []
+                        }
+                    ],
+                    "base": "urapha",
+                    "display": "rapha",
+                    "name": "RAPHA",
+                    "symbol": "RAPHA"
+                }
+            ]
+        },
+        "staking": {
+            "params": {
+                "unbonding_time": "1814400s",
+                "max_validators": 21,
+                "max_entries": 7,
+                "historical_entries": 10000,
+                "bond_denom": "urapha",
+                "min_commission_rate": "0.050000000000000000"
+            },
+            "last_total_power": "550",
+            "last_validator_powers": [],
+            "validators": [],
+            "delegations": [],
+            "unbonding_delegations": [],
+            "redelegations": [],
+            "exported": false
+        },
+        "consent": {
+            "params": {
+                "consent_expiry_default_blocks": 1000000,
+                "plonk_srs": "PLACEHOLDER_UNIVERSAL_SRS",
+                "plonk_verification_key": "PLACEHOLDER_VK"
+            },
+            "consent_records": [],
+            "consent_bits": [],
+            "registered_dids": []
+        },
+        "registry": {
+            "params": {
+                "max_record_size_bytes": 1048576,
+                "require_dual_signature": true
+            },
+            "records": []
+        },
+        "taco": {
+            "params": {
+                "threshold": 2,
+                "total_shares": 3,
+                "key_rotation_blocks": 100000
+            },
+            "key_keepers": [
+                {
+                    "address": "rapha1validator_edinburgh",
+                    "name": "Edinburgh Key Keeper",
+                    "share_index": 1
+                },
+                {
+                    "address": "rapha1validator_hku",
+                    "name": "HKU Key Keeper",
+                    "share_index": 2
+                },
+                {
+                    "address": "rapha1validator_cuhk",
+                    "name": "CUHK Key Keeper",
+                    "share_index": 3
+                }
+            ],
+            "conditions": [],
+            "decryption_requests": []
+        },
+        "pharma": {
+            "params": {
+                "max_batch_size": 10000,
+                "temperature_log_retention_blocks": 10000000,
+                "zero_gas_enabled": true
+            },
+            "registered_manufacturers": [],
+            "registered_pharmacies": [],
+            "registered_distributors": [],
+            "batches": [],
+            "temperature_logs": []
+        },
+        "labvault": {
+            "params": {
+                "max_vault_pointers": 1000000,
+                "right_to_forget_enabled": true,
+                "key_rotation_on_delete": true
+            },
+            "vault_pointers": [],
+            "access_logs": []
+        },
+        "bounty": {
+            "params": {
+                "platform_fee_percent": 20,
+                "patient_reward_percent": 80,
+                "min_bounty_amount": "100000000",
+                "max_pool_duration_blocks": 1000000
+            },
+            "bounty_pools": [],
+            "participant_records": []
+        },
+        "evm": {
+            "accounts": [],
+            "params": {
+                "evm_denom": "urapha",
+                "enable_create": true,
+                "enable_call": true,
+                "extra_eips": [],
+                "chain_config": {
+                    "homestead_block": "0",
+                    "dao_fork_block": "0",
+                    "dao_fork_support": true,
+                    "eip150_block": "0",
+                    "eip150_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "eip155_block": "0",
+                    "eip158_block": "0",
+                    "byzantium_block": "0",
+                    "constantinople_block": "0",
+                    "petersburg_block": "0",
+                    "istanbul_block": "0",
+                    "muir_glacier_block": "0",
+                    "berlin_block": "0",
+                    "london_block": "0",
+                    "arrow_glacier_block": "0",
+                    "merge_netsplit_block": "0",
+                    "shanghai_time": "0",
+                    "cancun_time": "0"
+                },
+                "allow_unprotected_txs": false
+            }
+        },
+        "feemarket": {
+            "params": {
+                "no_base_fee": false,
+                "base_fee_change_denominator": 8,
+                "elasticity_multiplier": 2,
+                "enable_height": "0",
+                "base_fee": "1000000000",
+                "min_gas_price": "0.000000001",
+                "min_gas_multiplier": "0.5"
+            },
+            "block_gas": "0"
+        }
+    }
+}

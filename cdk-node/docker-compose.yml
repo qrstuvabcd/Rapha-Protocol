@@ -1,0 +1,129 @@
+# Rapha Chain - Polygon CDK L2 Infrastructure (Simplified for Local Dev)
+# Run with: docker-compose up -d
+
+services:
+  # PostgreSQL database for state
+  cdk-postgres:
+    image: postgres:15-alpine
+    container_name: rapha-cdk-postgres
+    environment:
+      POSTGRES_USER: cdk_user
+      POSTGRES_PASSWORD: cdk_password
+      POSTGRES_DB: cdk_state
+    volumes:
+      - cdk-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cdk_user -d cdk_state"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rapha-network
+
+  # Geth-based L2 Node (simpler alternative for local dev)
+  rapha-l2-node:
+    image: ethereum/client-go:stable
+    container_name: rapha-l2-node
+    command:
+      - --dev
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3,debug,personal,txpool
+      - --http.corsdomain=*
+      - --http.vhosts=*
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.api=eth,net,web3
+      - --ws.origins=*
+      - --dev.period=3
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+    volumes:
+      - rapha-l2-data:/root/.ethereum
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8545"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - rapha-network
+
+  # DAC Simulator (Medical Research Institutions)
+  rapha-dac-simulator:
+    image: node:20-alpine
+    container_name: rapha-dac-simulator
+    working_dir: /app
+    volumes:
+      - ./scripts/dac-simulator:/app
+    command: ["node", "index.js"]
+    environment:
+      - DAC_MODE=simulator
+      - DAC_NODES=3
+      - REQUIRED_SIGNATURES=2
+      - PORT=8090
+      - NODE_NAMES=Edinburgh,HKU,CUHK
+    ports:
+      - "8090:8090"
+    networks:
+      - rapha-network
+
+  # ERC-4337 Bundler (Account Abstraction)
+  erc4337-bundler:
+    image: stackupwallet/stackup-bundler:latest
+    container_name: rapha-erc4337-bundler
+    depends_on:
+      rapha-l2-node:
+        condition: service_healthy
+    ports:
+      - "4337:4337"
+    environment:
+      - ERC4337_BUNDLER_ETH_CLIENT_URL=http://rapha-l2-node:8545
+      - ERC4337_BUNDLER_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - ERC4337_BUNDLER_PORT=4337
+    networks:
+      - rapha-network
+
+  # IPFS Node (Medical data storage)
+  ipfs-node:
+    image: ipfs/kubo:latest
+    container_name: rapha-ipfs-node
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8081:8080"
+    volumes:
+      - ipfs-data:/data/ipfs
+    networks:
+      - rapha-network
+
+  # TACo Node Simulator (Threshold Access Control)
+  taco-simulator:
+    image: node:20-alpine
+    container_name: rapha-taco-simulator
+    working_dir: /app
+    volumes:
+      - ./scripts/taco-simulator:/app
+    command: ["node", "index.js"]
+    environment:
+      - TACO_MODE=simulator
+      - THRESHOLD=2
+      - PORT=9092
+    ports:
+      - "9092:9092"
+    networks:
+      - rapha-network
+
+volumes:
+  cdk-postgres-data:
+  rapha-l2-data:
+  ipfs-data:
+
+networks:
+  rapha-network:
+    name: rapha-chain-network
+    driver: bridge

@@ -1,0 +1,30 @@
+{
+    "name": "aura-health",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Sovereign Medical Blockchain using Polygon CDK, Threshold TACo, and IPFS",
+    "workspaces": [
+        "backend-oracle",
+        "frontend-app"
+    ],
+    "scripts": {
+        "dev:backend": "npm run dev --workspace=backend-oracle",
+        "dev:frontend": "npm run dev --workspace=frontend-app",
+        "test:contracts": "cd contracts && forge test -vvv",
+        "test:backend": "npm run test --workspace=backend-oracle",
+        "build": "npm run build --workspaces",
+        "devnet:start": "cd cdk-node && ./scripts/start-devnet.sh",
+        "devnet:stop": "cd cdk-node && ./scripts/stop-devnet.sh"
+    },
+    "keywords": [
+        "blockchain",
+        "medical",
+        "polygon-cdk",
+        "ipfs",
+        "threshold-network"
+    ],
+    "license": "MIT",
+    "devDependencies": {
+        "@openzeppelin/contracts": "^5.4.0"
+    }
+}

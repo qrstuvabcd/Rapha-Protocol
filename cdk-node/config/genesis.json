@@ -1,0 +1,161 @@
+{
+    "l1Config": {
+        "chainId": 1,
+        "polygonZkEVMAddress": "0x0000000000000000000000000000000000000000",
+        "polygonRollupManagerAddress": "0x0000000000000000000000000000000000000000",
+        "polTokenAddress": "0x0000000000000000000000000000000000000000",
+        "polygonZkEVMGlobalExitRootAddress": "0x0000000000000000000000000000000000000000"
+    },
+    "genesisBlockNumber": 0,
+    "root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "genesis": [
+        {
+            "contractName": "PolygonZkEVMDeployer",
+            "balance": "0",
+            "nonce": "0",
+            "address": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "contractName": "RaphaCoreRegistry",
+            "balance": "0",
+            "nonce": "1",
+            "address": "0x8000000000000000000000000000000000000001",
+            "bytecode": "0x",
+            "storage": {}
+        },
+        {
+            "contractName": "RaphaTACoBridge",
+            "balance": "0",
+            "nonce": "1",
+            "address": "0x8000000000000000000000000000000000000002",
+            "bytecode": "0x",
+            "storage": {}
+        },
+        {
+            "contractName": "RaphaBountyNative",
+            "balance": "0",
+            "nonce": "1",
+            "address": "0x8000000000000000000000000000000000000003",
+            "bytecode": "0x",
+            "storage": {}
+        },
+        {
+            "contractName": "RaphaPaymaster",
+            "balance": "0",
+            "nonce": "1",
+            "address": "0x8000000000000000000000000000000000000004",
+            "bytecode": "0x",
+            "storage": {}
+        },
+        {
+            "contractName": "RaphaAccountFactory",
+            "balance": "0",
+            "nonce": "1",
+            "address": "0x8000000000000000000000000000000000000005",
+            "bytecode": "0x",
+            "storage": {}
+        },
+        {
+            "contractName": "RaphaPharmaRegistry",
+            "balance": "0",
+            "nonce": "1",
+            "address": "0x8000000000000000000000000000000000000006",
+            "bytecode": "0x",
+            "storage": {}
+        }
+    ],
+    "L2BridgeAddr": "0x0000000000000000000000000000000000000000",
+    "rollupCreationBlockNumber": 0,
+    "rollupManagerCreationBlockNumber": 0,
+    "L1Config": {
+        "chainId": 1,
+        "polygonZkEVMAddress": "0x0000000000000000000000000000000000000000"
+    },
+    "chainId": 7777,
+    "forkId": 10,
+    "consensus": "istanbul",
+    "alloc": {
+        "0x8000000000000000000000000000000000000001": {
+            "balance": "0",
+            "comment": "RaphaCoreRegistry - Medical Record System Contract"
+        },
+        "0x8000000000000000000000000000000000000002": {
+            "balance": "0",
+            "comment": "RaphaTACoBridge - Threshold Access Control Bridge"
+        },
+        "0x8000000000000000000000000000000000000003": {
+            "balance": "0",
+            "comment": "RaphaBountyNative - Native $RAPHA Bounty System"
+        },
+        "0x8000000000000000000000000000000000000004": {
+            "balance": "250000000000000000000000000",
+            "comment": "RaphaPaymaster - Research Treasury (250M RAPHA for gasless patient txs)"
+        },
+        "0x8000000000000000000000000000000000000005": {
+            "balance": "0",
+            "comment": "RaphaAccountFactory - ERC-4337 Account Factory"
+        },
+        "0x8000000000000000000000000000000000000006": {
+            "balance": "0",
+            "comment": "RaphaPharmaRegistry - Drug Provenance Registry"
+        },
+        "0xRaphaValidatorRewardsPool000000000000001": {
+            "balance": "400000000000000000000000000",
+            "comment": "Validator Rewards Pool (400M RAPHA - 40%)"
+        },
+        "0xRaphaTeamFoundation0000000000000000001": {
+            "balance": "150000000000000000000000000",
+            "comment": "Team/Foundation (150M RAPHA - 15%, 3-year vesting)"
+        },
+        "0xRaphaEcosystemGrants0000000000000000001": {
+            "balance": "100000000000000000000000000",
+            "comment": "Ecosystem Grants (100M RAPHA - 10%)"
+        },
+        "0xRaphaMigratedUsersAirdrop00000000000001": {
+            "balance": "100000000000000000000000000",
+            "comment": "Migrated Users Airdrop (100M RAPHA - 10%)"
+        },
+        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266": {
+            "balance": "100000000000000000000000",
+            "comment": "Development Account #1 (100K RAPHA)"
+        },
+        "0x70997970C51812dc3A010C7d01b50e0d17dc79C8": {
+            "balance": "100000000000000000000000",
+            "comment": "Development Account #2 (100K RAPHA)"
+        },
+        "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC": {
+            "balance": "100000000000000000000000",
+            "comment": "Development Account #3 (100K RAPHA)"
+        }
+    },
+    "dacConfig": {
+        "requiredSignatures": 2,
+        "members": [
+            {
+                "name": "University of Edinburgh Medical Informatics",
+                "address": "0xEd1nburgh000000000000000000000000000001",
+                "url": "https://dac.ed.ac.uk:9091"
+            },
+            {
+                "name": "HKU Centre for Genomic Sciences",
+                "address": "0xHKU00000000000000000000000000000000001",
+                "url": "https://dac.hku.hk:9091"
+            },
+            {
+                "name": "CUHK Medical Centre",
+                "address": "0xCUHK0000000000000000000000000000000001",
+                "url": "https://dac.cuhk.edu.hk:9091"
+            }
+        ]
+    },
+    "precompiles": {
+        "0x0000000000000000000000000000000000000080": {
+            "name": "TacoVerifier",
+            "description": "Threshold signature verification for Lab + Patient dual-signing"
+        },
+        "0x0000000000000000000000000000000000000081": {
+            "name": "PharmaRegistry",
+            "description": "Zero-gas drug batch provenance tracking"
+        }
+    }
+}

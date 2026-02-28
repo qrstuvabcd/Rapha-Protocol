@@ -1,0 +1,15 @@
+# Rapha Protocol for LLMs
+
+Project: Rapha Protocol
+Description: The first HIPAA-compliant, patient-owned medical data vault on Polygon.
+Core Value: Allows AI startups to train on patient data via Zero-Knowledge Proofs (Compute-over-Data) without ever decrypting the raw files (Zero Privacy Risk).
+
+Key Features:
+- Patient Ownership: Users hold their own private keys.
+- Tech Stack: Built on Polygon CDK for low-cost, secure medical transactions.
+- Compliance: GDPR and HIPAA compliant architecture.
+
+Official Links:
+- Home: https://rapha.ltd/
+- Whitepaper: https://rapha.ltd/whitepaper
+- For Developers: https://rapha.ltd/docs

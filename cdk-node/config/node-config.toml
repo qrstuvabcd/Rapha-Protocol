@@ -1,0 +1,238 @@
+# Rapha Chain - Polygon CDK Node Configuration
+# HIPAA-Native Layer 1 Blockchain with Validium Data Availability
+
+[Log]
+Level = "info"
+Outputs = ["stderr"]
+
+[StateDB]
+Host = "cdk-postgres"
+Port = "5432"
+User = "cdk_user"
+Password = "cdk_password"
+Name = "cdk_state"
+MaxConns = 200
+
+[Pool]
+FreeClaimGasLimit = 1500000
+IntervalToRefreshBlockedAddresses = "5m"
+IntervalToRefreshGasPrices = "5s"
+MaxTxBytesSize = 100132
+MaxTxDataBytesSize = 100000
+DefaultMinGasPriceAllowed = 1000000000
+MinAllowedGasPriceInterval = "5m"
+PollMinAllowedGasPriceInterval = "15s"
+
+[RPC]
+Host = "0.0.0.0"
+Port = 8545
+ReadTimeout = "60s"
+WriteTimeout = "60s"
+MaxRequestsPerIPAndSecond = 5000
+SequencerNodeURI = ""
+EnableL2SuggestedGasPricePolling = true
+BatchRequestsEnabled = true
+BatchRequestsLimit = 20
+MaxLogsCount = 10000
+MaxLogsBlockRange = 10000
+WebSockets.Enabled = true
+WebSockets.Host = "0.0.0.0"
+WebSockets.Port = 8546
+
+[Synchronizer]
+SyncInterval = "1s"
+SyncChunkSize = 100
+TrustedSequencerURL = ""
+
+[Sequencer]
+DeletePoolTxsL1BlockConfirmations = 100
+DeletePoolTxsCheckInterval = "12h"
+TxLifetimeCheckInterval = "10m"
+TxLifetimeMax = "3h"
+LoadPoolTxsCheckInterval = "500ms"
+StateConsistencyCheckInterval = "5s"
+
+  [Sequencer.Finalizer]
+  ForcedBatchesTimeout = "60s"
+  NewTxsWaitInterval = "100ms"
+  ResourceExhaustedMarginPct = 10
+  ForcedBatchesL1BlockConfirmations = 0
+  ForcedBatchesCheckInterval = "10s"
+  L1InfoTreeL1BlockConfirmations = 0
+  L1InfoTreeCheckInterval = "10s"
+  BatchMaxDeltaTimestamp = "20s"
+  L2BlockMaxDeltaTimestamp = "4s"
+  ResourcePercentageToCloseBatch = 10
+  StateRootSyncInterval = "300ms"
+  FlushIdCheckInterval = "50ms"
+  HaltOnBatchNumber = 0
+  SenderAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+
+[SequenceSender]
+WaitPeriodSendSequence = "5s"
+LastBatchVirtualizationTimeMaxWaitPeriod = "5s"
+L1BlockTimestampMargin = "30s"
+MaxTxSizeForL1 = 131072
+L2Coinbase = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+PrivateKey = { Path = "/pk/sequencer.keystore", Password = "testonly" }
+
+[Aggregator]
+Host = "0.0.0.0"
+Port = 50081
+RetryTime = "5s"
+VerifyProofInterval = "30s"
+ProofStatePollingInterval = "5s"
+TxProfitabilityCheckerType = "acceptall"
+TxProfitabilityMinReward = "1.1"
+IntervalAfterWhichBatchConsolidateAnyway = "0s"
+ChainID = 7777
+ForkId = 10
+CleanupLockedProofsInterval = "2m"
+GeneratingProofCleanupThreshold = "10m"
+SenderAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+
+[EthTxManager]
+FrequencyToMonitorTxs = "1s"
+WaitTxToBeMined = "2m"
+ConsolidationL1ConfirmationBlocks = 5
+FinalizationL1ConfirmationBlocks = 10
+WaitReceiptMaxTime = "250ms"
+WaitReceiptCheckInterval = "8ms"
+
+# CRITICAL: Mock Prover Configuration
+[Prover]
+ProverURI = "cdk-prover-mock:50051"
+ExecutorURI = "cdk-prover-mock:50052"
+
+# Enable mock mode - does not perform real ZK proofs
+# Required for 16GB RAM environments
+[Prover.Mock]
+Enabled = true
+
+[MTClient]
+URI = "cdk-prover-mock:50061"
+
+[Executor]
+URI = "cdk-prover-mock:50071"
+MaxResourceExhaustedAttempts = 3
+WaitOnResourceExhaustion = "1s"
+MaxGRPCMessageSize = 100000000
+
+[Metrics]
+Host = "0.0.0.0"
+Port = 9091
+Enabled = true
+
+[HashDB]
+User = "cdk_user"
+Password = "cdk_password"
+Name = "cdk_state"
+Host = "cdk-postgres"
+Port = "5432"
+MaxConns = 200
+
+# ============================================================
+# RAPHA CHAIN SPECIFIC CONFIGURATION
+# ============================================================
+
+# Native Token Configuration ($RAPHA)
+[NativeToken]
+Symbol = "RAPHA"
+Name = "Rapha Chain"
+Decimals = 18
+
+# Validium Data Availability Committee
+# Medical Research Institution Nodes
+[DAC]
+Enabled = true
+Mode = "validium"
+RequiredSignatures = 2
+
+# DAC Member Configuration
+# IMPORTANT: Replace placeholder addresses with actual institution addresses
+[[DAC.Members]]
+Name = "London Node"
+Address = "0xLDN00000000000000000000000000000000001"
+URL = "https://dac.london.rapha.chain:9091"
+PublicKey = ""  # Add actual public key
+
+[[DAC.Members]]
+Name = "Tokyo Node"
+Address = "0xTKY00000000000000000000000000000000001"
+URL = "https://dac.tokyo.rapha.chain:9091"
+PublicKey = ""  # Add actual public key
+
+[[DAC.Members]]
+Name = "Singapore Node"
+Address = "0xSGP00000000000000000000000000000000001"
+URL = "https://dac.singapore.rapha.chain:9091"
+PublicKey = ""  # Add actual public key
+
+[DAC.Backend]
+Type = "http"
+RetryTimeout = "30s"
+MaxRetries = 3
+
+# Account Abstraction (ERC-4337) Configuration
+[AccountAbstraction]
+Enabled = true
+EntryPointAddress = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"  # Standard EntryPoint
+PaymasterAddress = "0x8000000000000000000000000000000000000004"
+AccountFactoryAddress = "0x8000000000000000000000000000000000000005"
+
+# Essential Patient Transaction Sponsorship
+[AccountAbstraction.Sponsorship]
+Enabled = true
+MaxGasPerTx = 500000
+DailyLimitPerUser = "100000000000000000"  # 0.1 RAPHA
+
+# System Contract Addresses (Pre-deployed at Genesis)
+[SystemContracts]
+RaphaCoreRegistry = "0x8000000000000000000000000000000000000001"
+RaphaTACoBridge = "0x8000000000000000000000000000000000000002"
+RaphaBountyNative = "0x8000000000000000000000000000000000000003"
+RaphaPaymaster = "0x8000000000000000000000000000000000000004"
+RaphaAccountFactory = "0x8000000000000000000000000000000000000005"
+RaphaPharmaRegistry = "0x8000000000000000000000000000000000000006"
+
+# Native Precompiles
+[Precompiles]
+TacoVerifierAddress = "0x0000000000000000000000000000000000000080"
+PharmaRegistryAddress = "0x0000000000000000000000000000000000000081"
+
+# TACo Integration Settings
+[TACo]
+Enabled = true
+ThresholdRequired = 2  # Lab + Patient dual signature
+VerifierPrecompile = "0x0000000000000000000000000000000000000080"
+
+# Validator Staking Configuration
+[Staking]
+MinimumStake = "100000000000000000000000"  # 100,000 RAPHA
+RewardPerBlock = "2000000000000000000"      # 2 RAPHA
+UnbondingPeriod = 604800                    # 7 days
+MaxValidators = 100
+
+# Gas Configuration
+[Gas]
+BaseFeePerGas = "1000000000"  # 1 gwei
+MaxGasLimit = 30000000
+TargetGasUsed = 15000000
+
+# EIP-1559 Configuration
+[Gas.EIP1559]
+Enabled = true
+BaseFeeChangeDenominator = 8
+ElasticityMultiplier = 2
+
+# Medical Data Privacy Settings
+[Privacy]
+RequireDualSignature = true
+TacoConditionValidation = true
+AuditLogEnabled = true
+
+# Pharma Registry Settings
+[PharmaRegistry]
+ZeroGasEnabled = true
+PrecompileAddress = "0x0000000000000000000000000000000000000081"
+MaxBatchesPerBlock = 1000

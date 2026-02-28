@@ -1,0 +1,31 @@
+# Rapha L2 - Fly.io Configuration
+app = "rapha-l2"
+primary_region = "sin"
+
+[build]
+  image = "ethereum/client-go:stable"
+
+[env]
+  CHAIN_NAME = "Rapha L2"
+
+[[services]]
+  internal_port = 8545
+  protocol = "tcp"
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+[processes]
+  app = "--dev --http --http.addr=0.0.0.0 --http.port=8545 --http.api=eth,net,web3,debug,personal,txpool --http.corsdomain=* --http.vhosts=* --ws --ws.addr=0.0.0.0 --ws.port=8546 --ws.api=eth,net,web3 --ws.origins=* --dev.period=3"
+
+[[mounts]]
+  source = "rapha_data"
+  destination = "/root/.ethereum"

@@ -1,0 +1,194 @@
+# Rapha Chain - Tendermint Configuration
+# This is the configuration for the ABCI application
+
+# Validator node settings
+moniker = "rapha-node-1"
+
+# Logging level (debug, info, warn, error, fatal, panic)
+log_level = "info"
+
+# Log format (plain, json)
+log_format = "plain"
+
+##### ABCI Application Runtime Config #####
+
+[rpc]
+# TCP or UNIX socket address for the RPC server to listen on
+laddr = "tcp://0.0.0.0:26657"
+
+# A list of origins a cross-domain request can be executed from
+cors_allowed_origins = ["*"]
+
+# Maximum number of simultaneous connections
+max_open_connections = 900
+
+##### P2P Configuration Options #####
+
+[p2p]
+# Address to listen for incoming connections
+laddr = "tcp://0.0.0.0:26656"
+
+# Address to advertise to peers for them to dial
+external_address = ""
+
+# Comma separated list of seed nodes to connect to
+seeds = ""
+
+# Comma separated list of nodes to keep persistent connections to
+persistent_peers = ""
+
+# Maximum number of inbound peers
+max_num_inbound_peers = 40
+
+# Maximum number of outbound peers to connect to, excluding persistent peers
+max_num_outbound_peers = 10
+
+# Toggle to disable guard against peers connecting from the same ip
+allow_duplicate_ip = false
+
+# Peer exchange reactor
+pex = true
+
+# Seed mode (for running as a seed node)
+seed_mode = false
+
+# Comma separated list of peer IDs to keep private (will not be gossiped to other peers)
+private_peer_ids = ""
+
+##### Mempool Configuration Option #####
+
+[mempool]
+# Mempool version to use ("v0" or "v1")
+version = "v1"
+
+# Maximum number of transactions in the mempool
+max_txs_bytes = 1073741824
+
+# Size of the cache (used to filter transactions we saw earlier)
+cache_size = 10000
+
+##### Consensus Configuration Options #####
+
+[consensus]
+# How long to wait for a proposal block before prevoting nil
+timeout_propose = "3s"
+
+# How much to increase timeout_propose after each round
+timeout_propose_delta = "500ms"
+
+# How long to wait after receiving +2/3 prevotes
+timeout_prevote = "1s"
+
+# How long to wait after receiving +2/3 prevotes
+timeout_prevote_delta = "500ms"
+
+# How long to wait after receiving +2/3 precommits
+timeout_precommit = "1s"
+
+# How long to wait after receiving +2/3 precommits
+timeout_precommit_delta = "500ms"
+
+# How long to wait after committing a block
+timeout_commit = "3s"
+
+# Create empty blocks when there are no transactions
+create_empty_blocks = true
+
+# Create empty blocks interval
+create_empty_blocks_interval = "30s"
+
+##### Instrumentation Configuration Options #####
+
+[instrumentation]
+# Enable Prometheus metrics
+prometheus = true
+
+# Address to listen for Prometheus metrics
+prometheus_listen_addr = ":26660"
+
+# Maximum number of simultaneous Prometheus connections
+max_open_connections = 3
+
+# Metrics namespace
+namespace = "rapha"
+
+##### State Sync Configuration Options #####
+
+[statesync]
+# Enable state sync for fast node bootstrapping
+enable = false
+
+# RPC servers to use for state sync
+rpc_servers = ""
+
+# Trust height for state sync
+trust_height = 0
+
+# Trust hash for state sync
+trust_hash = ""
+
+# Trust period for state sync
+trust_period = "168h0m0s"
+
+##### Block Sync Configuration Options #####
+
+[blocksync]
+# Enable block sync
+version = "v0"
+
+##### FastSync Configuration Options #####
+
+[fastsync]
+# Enable fast sync
+version = "v0"
+
+##### TLS Configuration #####
+
+[tls]
+# Enable TLS for P2P connections
+enabled = true
+
+# Path to TLS certificate
+cert_path = "/etc/rapha/certs/node.crt"
+
+# Path to TLS key
+key_path = "/etc/rapha/certs/node.key"
+
+##### Rapha Chain Specific Settings #####
+
+[rapha]
+# Medical data consent verification
+pomc_enabled = true
+
+# PLONK proof verification timeout
+plonk_verify_timeout = "5s"
+
+# Sentinel checkpoint interval (in blocks)
+sentinel_checkpoint_interval = 256
+
+# Ethereum L1 RPC endpoint for Sentinel
+sentinel_l1_rpc = "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
+
+# Sentinel contract address on Ethereum L1
+sentinel_contract = "0x0000000000000000000000000000000000000000"
+
+# Gasless transactions for Patient DIDs
+gasless_patient_enabled = true
+
+# Research Treasury address (Paymaster)
+paymaster_address = "rapha1paymaster00000000000000000001"
+
+# TACo key keeper threshold
+taco_threshold = 2
+
+# TACo total key shares
+taco_total_shares = 3
+
+# Pharma module zero-gas registration
+pharma_zero_gas = true
+
+# Cold chain temperature excursion threshold (in milli-Celsius)
+pharma_temp_excursion_threshold = 8000  # 8°C
+
+# Right to Be Forgotten (GDPR Article 17)
+labvault_rtbf_enabled = true

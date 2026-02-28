@@ -1,0 +1,107 @@
+# Rapha Chain Genesis Configuration
+# Polygon CDK Validium Mode with $RAPHA Native Currency
+
+[chain]
+name = "Rapha Chain"
+short_name = "RAPHA"
+chain_id = 7777
+native_token_symbol = "RAPHA"
+native_token_name = "Rapha"
+native_token_decimals = 18
+
+# Genesis timing
+[genesis]
+timestamp = 1738000000  # Approx Jan 27, 2025
+genesis_block_number = 0
+root = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+# Validium Data Availability Mode
+[validium]
+mode = "validium"
+data_availability_backend = "DAC"
+
+# Data Availability Committee Configuration
+[validium.dac]
+# Medical Research Institution Nodes
+# IMPORTANT: Replace these with actual institution addresses before mainnet
+required_signatures = 2  # 2-of-3 threshold for data availability
+
+[[validium.dac.members]]
+name = "London Node"
+address = "0xLDN00000000000000000000000000000000001"  # PLACEHOLDER
+url = "https://dac.london.rapha.chain:9091"
+
+[[validium.dac.members]]
+name = "Tokyo Node"
+address = "0xTKY00000000000000000000000000000000001"  # PLACEHOLDER
+url = "https://dac.tokyo.rapha.chain:9091"
+
+[[validium.dac.members]]
+name = "Singapore Node"
+address = "0xSGP00000000000000000000000000000000001"  # PLACEHOLDER
+url = "https://dac.singapore.rapha.chain:9091"
+
+# L1 Settlement (Ethereum Mainnet)
+[l1]
+chain_id = 1
+rpc_url = "https://ethereum-rpc.publicnode.com"
+
+# Polygon CDK Core Contracts on L1
+[l1.contracts]
+polygon_zkevm_address = "0x0000000000000000000000000000000000000000"  # Deploy on L1
+polygon_rollup_manager_address = "0x0000000000000000000000000000000000000000"
+pol_token_address = "0x0000000000000000000000000000000000000000"
+polygon_zkevm_global_exit_root_address = "0x0000000000000000000000000000000000000000"
+
+# L2 Bridge Configuration
+[bridge]
+l2_bridge_address = "0x0000000000000000000000000000000000000000"
+rollup_creation_block_number = 0
+rollup_manager_creation_block_number = 0
+
+# Fork Configuration
+[fork]
+fork_id = 10  # Rapha Chain custom fork
+
+# Consensus
+[consensus]
+type = "istanbul"  # Polygon CDK default
+
+# System Contract Addresses (Pre-deployed at Genesis)
+# These addresses are reserved for Rapha Chain system contracts
+[system_contracts]
+rapha_core_registry = "0x8000000000000000000000000000000000000001"
+rapha_taco_bridge = "0x8000000000000000000000000000000000000002"
+rapha_bounty_native = "0x8000000000000000000000000000000000000003"
+rapha_paymaster = "0x8000000000000000000000000000000000000004"
+rapha_account_factory = "0x8000000000000000000000000000000000000005"
+rapha_pharma_registry = "0x8000000000000000000000000000000000000006"
+
+# Native Precompile Addresses
+[precompiles]
+taco_verifier = "0x0000000000000000000000000000000000000080"
+pharma_registry = "0x0000000000000000000000000000000000000081"
+
+# $RAPHA Token Economics
+[tokenomics]
+total_supply = "1000000000000000000000000000"  # 1 billion $RAPHA
+
+# Initial allocations (percentages of total supply)
+[tokenomics.allocations]
+validator_rewards_pool = 40    # 40% - 400M RAPHA
+research_treasury = 25         # 25% - 250M RAPHA (funds gasless patient txs)
+team_foundation = 15           # 15% - 150M RAPHA (3-year vesting)
+migrated_users_airdrop = 10    # 10% - 100M RAPHA (existing Polygon users)
+ecosystem_grants = 10          # 10% - 100M RAPHA (developer incentives)
+
+# Validator Configuration
+[validators]
+min_stake = "100000000000000000000000"  # 100,000 RAPHA minimum stake
+reward_per_block = "2000000000000000000"  # 2 RAPHA per block
+unbonding_period = 604800  # 7 days in seconds
+
+# Gas Configuration
+[gas]
+base_fee_per_gas = "1000000000"  # 1 gwei
+max_gas_limit = 30000000
+target_gas_used = 15000000

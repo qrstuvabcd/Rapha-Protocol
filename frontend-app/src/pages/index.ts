@@ -1,0 +1,6 @@
+export { LandingPage } from './LandingPage'
+export { PatientPortal } from './PatientPortal'
+export { HospitalPortal } from './HospitalPortal'
+export { AIResearchPortal } from './AIResearchPortal'
+export { Whitepaper } from './Whitepaper'
+export { VerifierPortal } from './VerifierPortal'

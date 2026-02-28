@@ -1,0 +1,258 @@
+package app
+
+import (
+	"fmt"
+
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+
+	consentkeeper "github.com/rapha-chain/rapha/x/consent/keeper"
+	consenttypes "github.com/rapha-chain/rapha/x/consent/types"
+)
+
+// AnteHandler implements the Rapha Chain ante handler with Proof of Medical Consent (PoMC) validation
+//
+// The PoMC mechanism is the "physics" of the Rapha Chain:
+// - ALL medical data transactions MUST include a valid PLONK proof of consent
+// - Transactions without valid consent proofs are rejected at the mempool level
+// - Patient DIDs receive gasless transactions via the Paymaster
+type AnteHandler struct {
+	accountKeeper  authkeeper.AccountKeeper
+	bankKeeper     bankkeeper.Keeper
+	evmKeeper      *evmkeeper.Keeper
+	consentKeeper  consentkeeper.Keeper
+	sigGasConsumer ante.SignatureVerificationGasConsumer
+}
+
+// AnteHandlerOptions are the options required for constructing an AnteHandler
+type AnteHandlerOptions struct {
+	AccountKeeper   authkeeper.AccountKeeper
+	BankKeeper      bankkeeper.Keeper
+	EVMKeeper       *evmkeeper.Keeper
+	ConsentKeeper   consentkeeper.Keeper
+	SignModeHandler *txsigning.HandlerMap
+	SigGasConsumer  ante.SignatureVerificationGasConsumer
+}
+
+// NewAnteHandler creates a new ante handler for the Rapha Chain
+func NewAnteHandler(opts AnteHandlerOptions) sdk.AnteHandler {
+	return sdk.ChainAnteDecorators(
+		// Standard Cosmos SDK decorators
+		ante.NewSetUpContextDecorator(),
+		ante.NewExtensionOptionsDecorator(nil),
+		ante.NewValidateBasicDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
+		ante.NewValidateMemoDecorator(opts.AccountKeeper),
+		ante.NewConsumeGasForTxSizeDecorator(opts.AccountKeeper),
+		ante.NewDeductFeeDecorator(opts.AccountKeeper, opts.BankKeeper, nil, nil),
+		ante.NewSetPubKeyDecorator(opts.AccountKeeper),
+		ante.NewValidateSigCountDecorator(opts.AccountKeeper),
+		ante.NewSigGasConsumeDecorator(opts.AccountKeeper, opts.SigGasConsumer),
+		ante.NewSigVerificationDecorator(opts.AccountKeeper, opts.SignModeHandler),
+		ante.NewIncrementSequenceDecorator(opts.AccountKeeper),
+
+		// PoMC (Proof of Medical Consent) decorator - THE CORE INNOVATION
+		NewPoMCDecorator(opts.ConsentKeeper),
+
+		// Gasless patient transactions decorator
+		NewPatientPaymasterDecorator(opts.ConsentKeeper, opts.BankKeeper),
+
+		// EVM-specific decorators for Ethermint compatibility
+		evmante.NewEthEmitEventDecorator(opts.EVMKeeper),
+		evmante.NewEthValidateBasicDecorator(opts.EVMKeeper),
+	)
+}
+
+// PoMCDecorator implements Proof of Medical Consent validation
+// This is the core "physics" of the Rapha Chain
+type PoMCDecorator struct {
+	consentKeeper consentkeeper.Keeper
+}
+
+// NewPoMCDecorator creates a new PoMC ante decorator
+func NewPoMCDecorator(ck consentkeeper.Keeper) PoMCDecorator {
+	return PoMCDecorator{consentKeeper: ck}
+}
+
+// AnteHandle validates PoMC requirements for all medical data transactions
+func (pmd PoMCDecorator) AnteHandle(
+	ctx sdk.Context,
+	tx sdk.Tx,
+	simulate bool,
+	next sdk.AnteHandler,
+) (sdk.Context, error) {
+	for _, msg := range tx.GetMsgs() {
+		// Check if this message requires consent verification
+		if medicalMsg, ok := msg.(consenttypes.MedicalDataMessage); ok {
+			// Extract consent proof from the message
+			consentProof := medicalMsg.GetConsentProof()
+			if consentProof == nil {
+				return ctx, errorsmod.Wrap(
+					sdkerrors.ErrUnauthorized,
+					"PoMC: Medical data transaction requires consent proof",
+				)
+			}
+
+			// Verify the PLONK proof of consent
+			valid, err := pmd.verifyConsentProof(ctx, medicalMsg, consentProof)
+			if err != nil {
+				return ctx, errorsmod.Wrap(
+					sdkerrors.ErrUnauthorized,
+					fmt.Sprintf("PoMC: Consent proof verification failed: %v", err),
+				)
+			}
+			if !valid {
+				return ctx, errorsmod.Wrap(
+					sdkerrors.ErrUnauthorized,
+					"PoMC: Invalid consent proof",
+				)
+			}
+
+			// Check the Consent-Bit state
+			recordID := medicalMsg.GetRecordID()
+			requesterDID := medicalMsg.GetRequesterDID()
+			
+			if !pmd.consentKeeper.IsConsentActive(ctx, recordID, requesterDID) {
+				return ctx, errorsmod.Wrap(
+					sdkerrors.ErrUnauthorized,
+					"PoMC: Consent-Bit is FALSE for this requester",
+				)
+			}
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+// verifyConsentProof verifies the PLONK proof of consent using gnark
+func (pmd PoMCDecorator) verifyConsentProof(
+	ctx sdk.Context,
+	msg consenttypes.MedicalDataMessage,
+	proof *consenttypes.PLONKProof,
+) (bool, error) {
+	// Get PLONK verification key from module params
+	params := pmd.consentKeeper.GetParams(ctx)
+	
+	// Deserialize the verification key
+	vk, err := deserializeVerificationKey(params.PlonkVerificationKey)
+	if err != nil {
+		return false, fmt.Errorf("failed to deserialize verification key: %w", err)
+	}
+
+	// Build public inputs from message data
+	publicInputs := buildPublicInputs(
+		msg.GetPatientDIDHash(),
+		msg.GetRecordID(),
+		msg.GetRequesterDIDHash(),
+		uint64(ctx.BlockHeight()),
+	)
+
+	// Verify the PLONK proof using gnark
+	valid, err := verifyPLONKProof(vk, proof.ProofBytes, publicInputs)
+	if err != nil {
+		return false, fmt.Errorf("PLONK verification error: %w", err)
+	}
+
+	return valid, nil
+}
+
+// PatientPaymasterDecorator implements gasless transactions for Patient DIDs
+type PatientPaymasterDecorator struct {
+	consentKeeper consentkeeper.Keeper
+	bankKeeper    bankkeeper.Keeper
+}
+
+// NewPatientPaymasterDecorator creates a new paymaster decorator
+func NewPatientPaymasterDecorator(ck consentkeeper.Keeper, bk bankkeeper.Keeper) PatientPaymasterDecorator {
+	return PatientPaymasterDecorator{
+		consentKeeper: ck,
+		bankKeeper:    bk,
+	}
+}
+
+// AnteHandle sponsors gas for verified Patient DIDs
+func (ppd PatientPaymasterDecorator) AnteHandle(
+	ctx sdk.Context,
+	tx sdk.Tx,
+	simulate bool,
+	next sdk.AnteHandler,
+) (sdk.Context, error) {
+	feeTx, ok := tx.(sdk.FeeTx)
+	if !ok {
+		return next(ctx, tx, simulate)
+	}
+
+	// Get the transaction signer
+	signers := tx.GetSigners()
+	if len(signers) == 0 {
+		return next(ctx, tx, simulate)
+	}
+
+	signer := signers[0]
+
+	// Check if signer is a registered Patient DID
+	if ppd.consentKeeper.IsPatientDID(ctx, signer.String()) {
+		// Sponsor gas from the Research Treasury (Paymaster account)
+		paymasterAddr := ppd.consentKeeper.GetPaymasterAddress(ctx)
+		feeAmount := feeTx.GetFee()
+
+		if !feeAmount.IsZero() {
+			// Transfer fee from paymaster to fee collector
+			err := ppd.bankKeeper.SendCoinsFromAccountToModule(
+				ctx,
+				paymasterAddr,
+				authtypes.FeeCollectorName,
+				feeAmount,
+			)
+			if err != nil {
+				// If paymaster can't cover, fall back to normal flow
+				return next(ctx, tx, simulate)
+			}
+
+			// Log gasless transaction for patient
+			ctx.Logger().Info(
+				"PoMC Paymaster: Sponsored gas for Patient DID",
+				"patient", signer.String(),
+				"fee", feeAmount.String(),
+			)
+
+			// Skip fee deduction since paymaster covered it
+			return next(ctx, tx, simulate)
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+// ===============================
+// PLONK Proof Verification Helpers
+// ===============================
+
+// These would be implemented using gnark library
+// For now, we define the interfaces
+
+func deserializeVerificationKey(vkBytes []byte) (interface{}, error) {
+	// TODO: Implement using github.com/consensys/gnark
+	// vk := groth16.NewVerifyingKey(ecc.BN254)
+	// _, err := vk.ReadFrom(bytes.NewReader(vkBytes))
+	return nil, nil
+}
+
+func buildPublicInputs(patientDIDHash, recordID, requesterDIDHash []byte, blockHeight uint64) []interface{} {
+	// TODO: Build circuit public inputs
+	return nil
+}
+
+func verifyPLONKProof(vk interface{}, proofBytes []byte, publicInputs []interface{}) (bool, error) {
+	// TODO: Implement using github.com/consensys/gnark
+	// proof := groth16.NewProof(ecc.BN254)
+	// _, err := proof.ReadFrom(bytes.NewReader(proofBytes))
+	// err = groth16.Verify(proof, vk, publicInputs)
+	return true, nil // Placeholder - always valid in dev mode
+}

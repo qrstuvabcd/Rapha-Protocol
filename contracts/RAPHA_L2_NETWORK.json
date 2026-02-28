@@ -1,0 +1,8 @@
+{
+  "name": "Rapha L2",
+  "rpcUrl": "http://localhost:8545",
+  "chainId": 1337,
+  "blockNumber": 467,
+  "devAccount": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "deployedAt": "2026-01-28T19:32:57.602Z"
+}

@@ -1,0 +1,426 @@
+package app
+
+import (
+	"encoding/json"
+	"io"
+	"os"
+	"path/filepath"
+
+	dbm "github.com/cosmos/cosmos-db"
+	"github.com/spf13/cast"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+
+	"cosmossdk.io/depinject"
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	// Ethermint modules for EVM compatibility
+	"github.com/evmos/ethermint/x/evm"
+	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+
+	// Rapha Chain native modules
+	"github.com/rapha-chain/rapha/x/consent"
+	consentkeeper "github.com/rapha-chain/rapha/x/consent/keeper"
+	"github.com/rapha-chain/rapha/x/registry"
+	registrykeeper "github.com/rapha-chain/rapha/x/registry/keeper"
+	"github.com/rapha-chain/rapha/x/taco"
+	tacokeeper "github.com/rapha-chain/rapha/x/taco/keeper"
+	"github.com/rapha-chain/rapha/x/pharma"
+	pharmakeeper "github.com/rapha-chain/rapha/x/pharma/keeper"
+	"github.com/rapha-chain/rapha/x/labvault"
+	labvaultkeeper "github.com/rapha-chain/rapha/x/labvault/keeper"
+	"github.com/rapha-chain/rapha/x/bounty"
+	bountykeeper "github.com/rapha-chain/rapha/x/bounty/keeper"
+)
+
+const (
+	// Name is the name of the Rapha Chain application
+	Name = "rapha"
+
+	// AccountAddressPrefix is the Bech32 prefix for Rapha accounts
+	AccountAddressPrefix = "rapha"
+
+	// ChainID is the default chain ID for Rapha mainnet
+	ChainID = "rapha-1"
+)
+
+var (
+	// DefaultNodeHome default home directories for the application daemon
+	DefaultNodeHome string
+
+	// ModuleBasics defines the module BasicManager
+	ModuleBasics = module.NewBasicManager(
+		auth.AppModuleBasic{},
+		bank.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		evm.AppModuleBasic{},
+		consent.AppModuleBasic{},
+		registry.AppModuleBasic{},
+		taco.AppModuleBasic{},
+		pharma.AppModuleBasic{},
+		labvault.AppModuleBasic{},
+		bounty.AppModuleBasic{},
+	)
+)
+
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	DefaultNodeHome = filepath.Join(userHomeDir, ".rapha")
+
+	// Set Bech32 address prefixes
+	sdk.GetConfig().SetBech32PrefixForAccount(AccountAddressPrefix, AccountAddressPrefix+"pub")
+	sdk.GetConfig().SetBech32PrefixForValidator(AccountAddressPrefix+"valoper", AccountAddressPrefix+"valoperpub")
+	sdk.GetConfig().SetBech32PrefixForConsensusNode(AccountAddressPrefix+"valcons", AccountAddressPrefix+"valconspub")
+	sdk.GetConfig().Seal()
+}
+
+// RaphaApp extends ABCI application with Rapha-specific modules
+type RaphaApp struct {
+	*baseapp.BaseApp
+
+	legacyAmino       *codec.LegacyAmino
+	appCodec          codec.Codec
+	txConfig          client.TxConfig
+	interfaceRegistry codectypes.InterfaceRegistry
+
+	// Keepers
+	AccountKeeper  authkeeper.AccountKeeper
+	BankKeeper     bankkeeper.Keeper
+	StakingKeeper  *stakingkeeper.Keeper
+	EVMKeeper      *evmkeeper.Keeper
+
+	// Rapha Chain native module keepers
+	ConsentKeeper  consentkeeper.Keeper
+	RegistryKeeper registrykeeper.Keeper
+	TacoKeeper     tacokeeper.Keeper
+	PharmaKeeper   pharmakeeper.Keeper
+	LabvaultKeeper labvaultkeeper.Keeper
+	BountyKeeper   bountykeeper.Keeper
+
+	// Module manager
+	mm           *module.Manager
+	configurator module.Configurator
+}
+
+// NewRaphaApp returns a reference to an initialized RaphaApp
+func NewRaphaApp(
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	loadLatest bool,
+	appOpts servertypes.AppOptions,
+	baseAppOptions ...func(*baseapp.BaseApp),
+) *RaphaApp {
+	// Initialize codec and interface registry
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	appCodec := codec.NewProtoCodec(interfaceRegistry)
+	legacyAmino := codec.NewLegacyAmino()
+	txConfig := tx.NewTxConfig(appCodec, tx.DefaultSignModes)
+
+	// Create base application
+	bApp := baseapp.NewBaseApp(
+		Name,
+		logger,
+		db,
+		txConfig.TxDecoder(),
+		baseAppOptions...,
+	)
+	bApp.SetCommitMultiStoreTracer(traceStore)
+	bApp.SetVersion(version.Version)
+	bApp.SetInterfaceRegistry(interfaceRegistry)
+
+	app := &RaphaApp{
+		BaseApp:           bApp,
+		legacyAmino:       legacyAmino,
+		appCodec:          appCodec,
+		txConfig:          txConfig,
+		interfaceRegistry: interfaceRegistry,
+	}
+
+	// Initialize store keys for all modules
+	keys := sdk.NewKVStoreKeys(
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		stakingtypes.StoreKey,
+		evmtypes.StoreKey,
+		consent.StoreKey,
+		registry.StoreKey,
+		taco.StoreKey,
+		pharma.StoreKey,
+		labvault.StoreKey,
+		bounty.StoreKey,
+	)
+
+	// Mount stores
+	app.MountKVStores(keys)
+	app.MountTransientStores(tkeys)
+	app.MountMemoryStores(memKeys)
+
+	// Initialize keepers
+	app.initKeepers(keys, appOpts)
+
+	// Create module manager with all modules
+	app.mm = module.NewManager(
+		auth.NewAppModule(appCodec, app.AccountKeeper, nil, nil),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, nil),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, nil),
+		evm.NewAppModule(app.EVMKeeper, app.AccountKeeper),
+		consent.NewAppModule(appCodec, app.ConsentKeeper),
+		registry.NewAppModule(appCodec, app.RegistryKeeper),
+		taco.NewAppModule(appCodec, app.TacoKeeper),
+		pharma.NewAppModule(appCodec, app.PharmaKeeper),
+		labvault.NewAppModule(appCodec, app.LabvaultKeeper),
+		bounty.NewAppModule(appCodec, app.BountyKeeper),
+	)
+
+	// Define module order for different operations
+	app.mm.SetOrderBeginBlockers(
+		evmtypes.ModuleName,
+		consent.ModuleName,
+	)
+	app.mm.SetOrderEndBlockers(
+		stakingtypes.ModuleName,
+		consent.ModuleName,
+	)
+	app.mm.SetOrderInitGenesis(
+		authtypes.ModuleName,
+		banktypes.ModuleName,
+		stakingtypes.ModuleName,
+		evmtypes.ModuleName,
+		consent.ModuleName,
+		registry.ModuleName,
+		taco.ModuleName,
+		pharma.ModuleName,
+		labvault.ModuleName,
+		bounty.ModuleName,
+	)
+
+	// Register ante handler with PoMC hooks
+	app.SetAnteHandler(NewAnteHandler(
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.EVMKeeper,
+		app.ConsentKeeper,  // PoMC consent verification
+	))
+
+	// Register ABCI handlers
+	app.SetInitChainer(app.InitChainer)
+	app.SetBeginBlocker(app.BeginBlocker)
+	app.SetEndBlocker(app.EndBlocker)
+
+	if loadLatest {
+		if err := app.LoadLatestVersion(); err != nil {
+			panic(err)
+		}
+	}
+
+	return app
+}
+
+// initKeepers initializes all module keepers
+func (app *RaphaApp) initKeepers(keys map[string]*storetypes.KVStoreKey, appOpts servertypes.AppOptions) {
+	// Account Keeper
+	app.AccountKeeper = authkeeper.NewAccountKeeper(
+		app.appCodec,
+		keys[authtypes.StoreKey],
+		authtypes.ProtoBaseAccount,
+		maccPerms,
+		AccountAddressPrefix,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	// Bank Keeper
+	app.BankKeeper = bankkeeper.NewBaseKeeper(
+		app.appCodec,
+		keys[banktypes.StoreKey],
+		app.AccountKeeper,
+		BlockedAddresses(),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	// Staking Keeper (PoA mode - restricted validator set)
+	app.StakingKeeper = stakingkeeper.NewKeeper(
+		app.appCodec,
+		keys[stakingtypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	// Consent Keeper (Core PoMC module)
+	app.ConsentKeeper = consentkeeper.NewKeeper(
+		app.appCodec,
+		keys[consent.StoreKey],
+		app.AccountKeeper,
+	)
+
+	// Registry Keeper (Medical Record Registry)
+	app.RegistryKeeper = registrykeeper.NewKeeper(
+		app.appCodec,
+		keys[registry.StoreKey],
+		app.AccountKeeper,
+		app.ConsentKeeper,
+	)
+
+	// TACo Keeper (Threshold Access Control)
+	app.TacoKeeper = tacokeeper.NewKeeper(
+		app.appCodec,
+		keys[taco.StoreKey],
+		app.ConsentKeeper,
+	)
+
+	// Pharma Keeper (Drug Provenance)
+	app.PharmaKeeper = pharmakeeper.NewKeeper(
+		app.appCodec,
+		keys[pharma.StoreKey],
+		app.ConsentKeeper,
+	)
+
+	// Labvault Keeper (Encrypted Lab Data)
+	app.LabvaultKeeper = labvaultkeeper.NewKeeper(
+		app.appCodec,
+		keys[labvault.StoreKey],
+		app.ConsentKeeper,
+		app.TacoKeeper,
+	)
+
+	// Bounty Keeper (Research Bounties)
+	app.BountyKeeper = bountykeeper.NewKeeper(
+		app.appCodec,
+		keys[bounty.StoreKey],
+		app.BankKeeper,
+		app.ConsentKeeper,
+		app.TacoKeeper,
+	)
+
+	// EVM Keeper with Rapha precompiles
+	app.EVMKeeper = evmkeeper.NewKeeper(
+		app.appCodec,
+		keys[evmtypes.StoreKey],
+		tkeys[evmtypes.TransientKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.FeeMarketKeeper,
+		nil, // custom precompiles (added below)
+		geth.NewEVM,
+		cast.ToString(appOpts.Get(srvflags.EVMTracer)),
+	)
+
+	// Register Rapha precompiles
+	app.EVMKeeper.WithPrecompiles(
+		NewRaphaPrecompiles(
+			app.ConsentKeeper,
+			app.TacoKeeper,
+			app.PharmaKeeper,
+		),
+	)
+}
+
+// InitChainer application update at chain initialization
+func (app *RaphaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	var genesisState GenesisState
+	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+		panic(err)
+	}
+	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+}
+
+// BeginBlocker application updates every begin block
+func (app *RaphaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return app.mm.BeginBlock(ctx, req)
+}
+
+// EndBlocker application updates every end block
+func (app *RaphaApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	return app.mm.EndBlock(ctx, req)
+}
+
+// Name returns the name of the app
+func (app *RaphaApp) Name() string { return app.BaseApp.Name() }
+
+// LegacyAmino returns the application's codec
+func (app *RaphaApp) LegacyAmino() *codec.LegacyAmino {
+	return app.legacyAmino
+}
+
+// AppCodec returns the application's codec
+func (app *RaphaApp) AppCodec() codec.Codec {
+	return app.appCodec
+}
+
+// InterfaceRegistry returns the application's InterfaceRegistry
+func (app *RaphaApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+	return app.interfaceRegistry
+}
+
+// TxConfig returns the application's TxConfig
+func (app *RaphaApp) TxConfig() client.TxConfig {
+	return app.txConfig
+}
+
+// RegisterAPIRoutes registers all application module routes with the provided API server
+func (app *RaphaApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	clientCtx := apiSvr.ClientCtx
+	// Register new tx routes from grpc-gateway
+	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	// Register new tendermint queries routes from grpc-gateway
+	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	// Register node gRPC service for grpc-gateway
+	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
+	// Register grpc-gateway routes for all modules
+	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+}
+
+// GetMaccPerms returns a copy of the module account permissions
+func GetMaccPerms() map[string][]string {
+	dupMaccPerms := make(map[string][]string)
+	for k, v := range maccPerms {
+		dupMaccPerms[k] = v
+	}
+	return dupMaccPerms
+}
+
+// maccPerms module account permissions
+var maccPerms = map[string][]string{
+	authtypes.FeeCollectorName:     nil,
+	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+	bounty.ModuleName:              {authtypes.Minter, authtypes.Burner},
+	consent.PaymasterAccount:       {authtypes.Burner}, // Gasless patient transactions
+}
+
+// BlockedAddresses returns all the app's blocked account addresses
+func BlockedAddresses() map[string]bool {
+	blockedAddrs := make(map[string]bool)
+	for acc := range GetMaccPerms() {
+		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
+	}
+	return blockedAddrs
+}
+
+// GenesisState is the application state at genesis
+type GenesisState map[string]json.RawMessage
