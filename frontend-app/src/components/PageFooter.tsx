@@ -21,6 +21,9 @@ export function PageFooter() {
                         <Link to="/whitepaper" className="text-rapha-muted hover:text-white transition-colors">
                             Whitepaper
                         </Link>
+                        <a href="https://github.com/qrstuvabcd/Rapha-Protocol" target="_blank" rel="noopener noreferrer" className="text-rapha-muted hover:text-white transition-colors">
+                            GitHub
+                        </a>
                     </div>
 
                     {/* Copyright */}
