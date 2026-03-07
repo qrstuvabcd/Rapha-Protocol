@@ -9,7 +9,7 @@ export default function LandingPage() {
             <nav className="border-b border-zinc-800/50 bg-[#09090b]/80 backdrop-blur-md fixed top-0 w-full z-50">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.6)]"></div>
+                        <div className="w-3 h-3 rounded-full bg-[#06b6d4] animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.6)]"></div>
                         <span className="font-bold text-white text-xl tracking-tight">Rapha Protocol</span>
                     </div>
                     <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
@@ -25,15 +25,15 @@ export default function LandingPage() {
             {/* HERO SECTION */}
             <main className="max-w-7xl mx-auto px-6 pt-40 pb-24 grid lg:grid-cols-2 gap-16 items-center">
                 <div className="space-y-8 z-10">
-                    <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono">
-                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping absolute"></span>
-                        <span className="w-2 h-2 rounded-full bg-cyan-400 relative"></span>
+                    <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-[#06b6d4]/10 border border-[#06b6d4]/ text-[#06b6d4] text-xs font-mono">
+                        <span className="w-2 h-2 rounded-full bg-[#22d3ee] animate-ping absolute"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#22d3ee] relative"></span>
                         <span>Rapha-AI v0.1.0 is Live on Polygon Mainnet</span>
                     </div>
 
                     <h1 className="text-5xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
                         Train AI on <br />Clinical Data.<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#06b6d4] to-blue-500">
                             Without Moving It.
                         </span>
                     </h1>
@@ -54,7 +54,7 @@ export default function LandingPage() {
 
                 {/* Hero Terminal UI */}
                 <div className="relative z-10">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl blur opacity-20 animate-pulse"></div>
+                    <div className="absolute -inset-1 bg-gradient-to-r from-[#06b6d4] to-blue-600 rounded-xl blur opacity-20 animate-pulse"></div>
                     <div className="relative rounded-xl bg-[#0c0c0e] border border-zinc-800 shadow-2xl overflow-hidden font-mono text-sm">
                         <div className="flex items-center px-4 py-3 bg-[#18181b] border-b border-zinc-800/80">
                             <div className="flex space-x-2">
@@ -68,11 +68,11 @@ export default function LandingPage() {
                         </div>
                         <div className="p-6 space-y-5 text-zinc-300 overflow-x-auto">
                             <div>
-                                <span className="text-cyan-400">$</span> pip install rapha-ai<br />
+                                <span className="text-[#06b6d4]">$</span> pip install rapha-ai<br />
                                 <span className="text-zinc-500">Successfully installed rapha-ai-0.1.0</span>
                             </div>
                             <div>
-                                <span className="text-cyan-400">$</span> python train_model.py
+                                <span className="text-[#06b6d4]">$</span> python train_model.py
                             </div>
                             <div className="text-zinc-400 space-y-1.5 border-l-2 border-zinc-800 pl-4 ml-1">
                                 <p>&gt; Initializing RaphaClient (Mainnet)...</p>
@@ -86,7 +86,7 @@ export default function LandingPage() {
                                 </p>
                             </div>
                             <div className="flex items-center">
-                                <span className="text-cyan-400">$</span> <span className="ml-2 w-2 h-4 bg-zinc-400 animate-pulse inline-block"></span>
+                                <span className="text-[#06b6d4]">$</span> <span className="ml-2 w-2 h-4 bg-zinc-400 animate-pulse inline-block"></span>
                             </div>
                         </div>
                     </div>
@@ -103,16 +103,16 @@ export default function LandingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {/* AI Researchers */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-cyan-500/50 transition-colors">
+                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-[#06b6d4]/ transition-colors">
                             <div>
                                 <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6">
-                                    <Terminal className="text-cyan-400" />
+                                    <Terminal className="text-[#06b6d4]" />
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">AI Researchers</h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">Stop training on synthetic garbage. Dispatch your models into the world's largest decentralized network of proprietary EHR and telemetry data.</p>
                             </div>
                             <div className="pt-4 border-t border-zinc-800/50 mt-auto">
-                                <a href="https://pypi.org/project/rapha-ai" className="inline-flex items-center text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
+                                <a href="https://pypi.org/project/rapha-ai" className="inline-flex items-center text-sm font-semibold text-[#06b6d4] hover:text-[#67e8f9] transition-colors">
                                     View PyPI Documentation →
                                 </a>
                             </div>
@@ -163,7 +163,7 @@ export default function LandingPage() {
 
                     <div className="grid md:grid-cols-3 gap-8">
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <Server className="text-cyan-400 w-10 h-10" />
+                            <Server className="text-[#06b6d4] w-10 h-10" />
                             <h3 className="text-lg font-bold text-white">Local TEE Execution</h3>
                             <p className="text-zinc-400 text-sm">Models run securely inside the hospital's Trusted Execution Environment.</p>
                         </div>
@@ -184,19 +184,19 @@ export default function LandingPage() {
             {/* DEVELOPER QUICKSTART */}
             <section className="py-24 max-w-5xl mx-auto px-6 border-t border-zinc-800/50">
                 <div className="flex items-center gap-3 mb-10">
-                    <Cpu className="text-cyan-400" />
+                    <Cpu className="text-[#06b6d4]" />
                     <h2 className="text-3xl font-bold text-white">Developer Quickstart</h2>
                 </div>
 
                 <div className="rounded-xl border border-zinc-800 bg-[#0c0c0e] overflow-hidden">
                     <div className="flex border-b border-zinc-800 bg-[#121214] px-4 py-3 gap-6 text-sm font-medium">
-                        <span className="text-cyan-400 border-b-2 border-cyan-400 pb-3 -mb-3">Python SDK</span>
+                        <span className="text-[#06b6d4] border-b-2 border-[#06b6d4] pb-3 -mb-3">Python SDK</span>
                     </div>
                     <div className="p-6 font-mono text-sm text-zinc-300 space-y-6">
                         <div>
                             <p className="text-zinc-500 mb-2"># 1. Install the SDK via PyPI</p>
                             <div className="bg-black/50 p-3 rounded-lg border border-zinc-800/50">
-                                <span className="text-cyan-400">$</span> pip install rapha-ai
+                                <span className="text-[#06b6d4]">$</span> pip install rapha-ai
                             </div>
                         </div>
 
@@ -225,7 +225,7 @@ export default function LandingPage() {
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
                     <span>All Network Systems Operational</span>
                 </div>
-                <p>© 2026 Rapha Protocol Ltd. Backed by the Antler Inception Residency.</p>
+                <p>© 2026 Rapha Protocol Ltd.</p>
             </footer>
         </div>
     );
