@@ -41,12 +41,9 @@ export default function LandingPage() {
                     <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
                         <Link to="/whitepaper" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Code size={16} /> Docs</Link>
                         <motion.a whileHover={{ scale: 1.05 }} href="https://pypi.org/project/rapha-ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Terminal size={16} /> PyPI SDK</motion.a>
-                        <Link to="/dashboard" className="border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-4 py-1.5 rounded-md transition-all">
-                            Launch Dashboard
+                        <Link to="/legacy" className="text-zinc-500 hover:text-zinc-300 transition-colors border border-zinc-700 px-4 py-1.5 rounded-md hover:border-zinc-500 hover:bg-zinc-900">
+                            Switch to Rapha Protocol v 1.0 (Older Version)
                         </Link>
-                        <motion.a whileHover={{ scale: 1.05 }} href="/legacy" className="text-zinc-500 hover:text-zinc-300 transition-colors border border-zinc-700 px-4 py-1.5 rounded-md hover:border-zinc-500 hover:bg-zinc-900">
-                            v1.0 (Legacy)
-                        </motion.a>
                     </div>
                 </div>
             </motion.nav>
