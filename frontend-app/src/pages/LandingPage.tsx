@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿
 import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -14,17 +14,12 @@ export default function LandingPage() {
 
     const fadeInUp = {
         hidden: { opacity: 0, y: 30 },
-        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
-    };
-
-    const fadeInRight = {
-        hidden: { opacity: 0, x: 30 },
-        show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
+        show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 20 } }
     };
 
     const scaleIn = {
         hidden: { opacity: 0, scale: 0.95 },
-        show: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100, damping: 20 } }
+        show: { opacity: 1, scale: 1, transition: { type: "spring" as const, stiffness: 100, damping: 20 } }
     };
 
     return (
