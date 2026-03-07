@@ -1,175 +1,224 @@
-﻿import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { PatientPage } from '../components/PatientPage'
-import { AuthModal } from '../components/AuthModal'
-import { UploadModal } from '../components/UploadModal'
-import { ZkTlsImportModal } from '../components/ZkTlsImportModal'
-import { ShareQRModal } from '../components/QRCode'
-import { hasStoredWallet } from '../services/wallet.service'
-import { type UserProfile } from '../services/profile.service'
-import { PageFooter } from '../components/PageFooter'
-import { isDemoMode, DEMO_WALLET, DEMO_PATIENT_PROFILE, seedDemoData } from '../services/demoMode'
+﻿
+import { useState } from 'react';
+import {
+    Cpu,
+    Zap,
+    Activity,
+    Heart,
+    Moon,
+    TrendingUp,
+    ShieldCheck,
+    Wallet,
+    ChevronRight,
+    ArrowUpRight,
+    Clock
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
-type NavItem = 'dashboard' | 'records' | 'access' | 'opportunities'
+export default function PatientPortal() {
+    const [isClaiming, setIsClaiming] = useState(false);
+    const [balance, setBalance] = useState(142.50);
+    const [toggles, setToggles] = useState({
+        heartRate: true,
+        sleep: true,
+        hrv: false
+    });
 
-export function PatientPortal() {
-    const [isConnected, setIsConnected] = useState(false)
-    const [walletAddress, setWalletAddress] = useState<string | null>(null)
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-    const [activeNav, setActiveNav] = useState<NavItem>('dashboard')
-    const [showUploadModal, setShowUploadModal] = useState(false)
-    const [showAuthModal, setShowAuthModal] = useState(false)
-    const [showQRModal, setShowQRModal] = useState(false)
-    const [showZkTlsModal, setShowZkTlsModal] = useState(false)
+    const toggleHealth = (key: keyof typeof toggles) => {
+        setToggles(prev => ({ ...prev, [key]: !prev[key] }));
+    };
 
-    useEffect(() => {
-        if (isDemoMode()) {
-            seedDemoData()
-            setWalletAddress(DEMO_WALLET)
-            setUserProfile(DEMO_PATIENT_PROFILE)
-            setIsConnected(true)
-        } else if (hasStoredWallet()) {
-            // Auto-show auth modal if wallet exists
-        }
-    }, [])
-
-
-    const handleAuthSuccess = (address: string, profile: UserProfile) => {
-        setWalletAddress(address)
-        setUserProfile(profile)
-        setIsConnected(true)
-        setShowAuthModal(false)
-    }
-
-    const handleDisconnect = () => {
-        setIsConnected(false)
-        setWalletAddress(null)
-        setUserProfile(null)
-        setActiveNav('dashboard')
-    }
+    const handleClaim = () => {
+        setIsClaiming(true);
+        setTimeout(() => {
+            setBalance(0);
+            setIsClaiming(false);
+        }, 2000);
+    };
 
     return (
-        <div className="min-h-screen">
-            {/* Header */}
-            <header className="border-b border-white/5 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-50">
-                <div className="container mx-auto px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                                <img src="/rapha-logo.png" alt="Rapha Protocol" className="w-10 h-10 rounded-xl" />
-                                <span className="text-xl font-bold text-white">Rapha Protocol</span>
-                            </Link>
-                            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30">
-                                <span className="w-2 h-2 bg-sky-400 rounded-full" />
-                                <span className="text-sm text-sky-400 font-medium">Patient Portal</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            {isConnected ? (
-                                <>
-                                    <button
-                                        onClick={() => setShowQRModal(true)}
-                                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-slate-400 hover:text-white"
-                                        title="Share QR Code"
-                                    >
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                        </svg>
-                                    </button>
-                                    <div className="hidden md:block text-right">
-                                        <p className="text-sm text-white font-medium">{userProfile?.fullName || 'User'}</p>
-                                        <p className="text-xs text-slate-400">{walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}</p>
-                                    </div>
-                                    <button
-                                        onClick={handleDisconnect}
-                                        className="px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors text-sm"
-                                    >
-                                        Disconnect
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => setShowAuthModal(true)}
-                                    className="btn-gradient px-6 py-2"
-                                >
-                                    {hasStoredWallet() ? 'Sign In' : 'Connect Wallet'}
-                                </button>
-                            )}
-                        </div>
+        <div className="min-h-screen bg-[#09090b] text-zinc-300 font-sans pb-24">
+            {/* Mobile-First Header */}
+            <div className="sticky top-0 z-50 bg-[#09090b]/80 backdrop-blur-lg border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                        <Cpu size={18} className="text-purple-400" />
                     </div>
+                    <span className="font-bold text-white tracking-tight">Edge Node v0.4</span>
                 </div>
-            </header>
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">Active</span>
+                </div>
+            </div>
 
-            {/* Main Content */}
-            <main className="container mx-auto px-6 py-8">
-                {isConnected ? (
-                    <PatientPage
-                        walletAddress={walletAddress!}
-                        userProfile={userProfile}
-                        activeNav={activeNav}
-                        onNavChange={(nav) => setActiveNav(nav)}
-                        onUploadClick={() => setShowUploadModal(true)}
-                        onShowQR={() => setShowQRModal(true)}
-                        onZkTlsImport={() => setShowZkTlsModal(true)}
-                    />
-                ) : (
-                    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                        <div className="glass-card p-12 text-center max-w-lg">
-                            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center text-4xl">
-                                🏥
+            <div className="max-w-md mx-auto px-6 pt-8 space-y-8">
+
+                {/* NPU Activity Graph Simulation */}
+                <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                            <Zap size={14} className="text-yellow-400" />
+                            NPU Activity (On-Device)
+                        </h2>
+                        <span className="text-[10px] font-mono text-zinc-600">42% Load</span>
+                    </div>
+
+                    <div className="h-32 bg-zinc-900/50 rounded-2xl border border-zinc-800 flex items-end justify-between p-4 gap-1 overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/5 to-transparent"></div>
+                        {[...Array(12)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ height: 10 }}
+                                animate={{ height: [10, 40 + Math.random() * 60, 20 + Math.random() * 40, 10] }}
+                                transition={{
+                                    repeat: Infinity,
+                                    duration: 1.5 + Math.random(),
+                                    delay: i * 0.1,
+                                    ease: "easeInOut"
+                                }}
+                                className="w-full bg-gradient-to-t from-purple-600/40 to-purple-400 rounded-t-sm"
+                            />
+                        ))}
+                    </div>
+                    <p className="text-[10px] text-center text-zinc-500 font-medium">Training Local Llama-3 (Edge Adaptor) while device is charging.</p>
+                </section>
+
+                {/* Gradient Ledger */}
+                <section className="rounded-3xl bg-zinc-900/30 border border-zinc-800 p-6 space-y-6">
+                    <div className="flex items-center gap-2">
+                        <TrendingUp size={18} className="text-cyan-400" />
+                        <h2 className="font-bold text-white">The Gradient Ledger</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between group">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+                                    <Activity size={18} className="text-cyan-400" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Alzheimer's Study</p>
+                                    <p className="text-[10px] text-zinc-500">Oxford Neurological</p>
+                                </div>
                             </div>
-                            <h2 className="text-3xl font-bold text-white mb-4">Patient Portal</h2>
-                            <p className="text-slate-400 mb-8">
-                                Connect your wallet to access your encrypted health records, manage permissions, and track your data.
-                            </p>
-                            <button
-                                onClick={() => setShowAuthModal(true)}
-                                className="btn-gradient text-lg px-8 py-4 w-full"
-                            >
-                                {hasStoredWallet() ? 'Sign In' : 'Create Health Wallet'}
-                            </button>
-                            <Link to="/" className="block mt-6 text-slate-500 hover:text-white transition-colors flex items-center justify-center gap-2">
-                                <span>←</span> Back to Home
-                            </Link>
+                            <div className="text-right">
+                                <p className="text-xs font-mono font-bold text-cyan-400">+0.042 Gradient</p>
+                                <p className="text-[10px] text-zinc-600">2h ago</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between group">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                                    <Heart size={18} className="text-purple-400" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Cardio-Mapping</p>
+                                    <p className="text-[10px] text-zinc-500">Mayo Clinic Research</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs font-mono font-bold text-purple-400">+0.108 Gradient</p>
+                                <p className="text-[10px] text-zinc-600">6h ago</p>
+                            </div>
                         </div>
                     </div>
-                )}
-            </main>
 
-            {/* Modals */}
-            {showUploadModal && walletAddress && (
-                <UploadModal
-                    walletAddress={walletAddress}
-                    onClose={() => setShowUploadModal(false)}
-                />
-            )}
+                    <button className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/50 text-xs font-bold hover:bg-zinc-800 transition-all border border-transparent hover:border-zinc-700">
+                        View Contribution History
+                        <ChevronRight size={14} />
+                    </button>
+                </section>
 
-            {showAuthModal && (
-                <AuthModal
-                    onSuccess={handleAuthSuccess}
-                    onClose={() => setShowAuthModal(false)}
-                />
-            )}
+                {/* HealthKit Toggles */}
+                <section className="space-y-4">
+                    <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                        <ShieldCheck size={14} className="text-emerald-400" />
+                        Edge Compute Access
+                    </h2>
 
-            {showQRModal && walletAddress && (
-                <ShareQRModal
-                    walletAddress={walletAddress}
-                    userName={userProfile?.fullName || 'User'}
-                    onClose={() => setShowQRModal(false)}
-                />
-            )}
+                    <div className="space-y-3">
+                        {[
+                            { id: 'heartRate' as const, label: 'Heart Rate Records', icon: Heart, sub: 'Real-time telemetry' },
+                            { id: 'sleep' as const, label: 'Sleep Analysis', icon: Moon, sub: 'Circadian sync data' },
+                            { id: 'hrv' as const, label: 'HRV Variability', icon: Activity, sub: 'Stress biomarker mapping' }
+                        ].map(({ id, label, icon: Icon, sub }) => (
+                            <div key={id} className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${toggles[id] ? 'bg-emerald-500/10 text-emerald-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                                        <Icon size={20} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-white">{label}</h3>
+                                        <p className="text-[10px] text-zinc-500">{sub}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => toggleHealth(id)}
+                                    className={`w-12 h-6 rounded-full relative transition-colors p-1 ${toggles[id] ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                                >
+                                    <motion.div
+                                        animate={{ x: toggles[id] ? 24 : 0 }}
+                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                        className="w-4 h-4 bg-white rounded-full shadow-sm"
+                                    />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </section>
 
-            {showZkTlsModal && walletAddress && (
-                <ZkTlsImportModal
-                    walletAddress={walletAddress}
-                    onClose={() => setShowZkTlsModal(false)}
-                />
-            )}
+                {/* Rewards Section */}
+                <section className="rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-600 p-6 shadow-xl shadow-purple-500/20">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md">
+                            <Wallet size={20} className="text-white" />
+                        </div>
+                        <div className="px-3 py-1 bg-black/20 rounded-full text-[10px] font-bold text-white uppercase tracking-wider backdrop-blur-sm">
+                            Mainnet Rewards
+                        </div>
+                    </div>
 
-            <PageFooter />
+                    <div className="mb-8">
+                        <p className="text-zinc-200 text-xs font-semibold mb-1">Available to Claim</p>
+                        <h3 className="text-4xl font-black text-white tracking-tighter">${balance.toFixed(2)} <span className="text-lg opacity-60">USDC</span></h3>
+                    </div>
+
+                    <button
+                        onClick={handleClaim}
+                        disabled={balance === 0 || isClaiming}
+                        className="w-full py-4 bg-white text-indigo-600 font-bold rounded-2xl hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isClaiming ? (
+                            <>
+                                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Zap size={18} /></motion.div>
+                                Confirming Transaction...
+                            </>
+                        ) : (
+                            <>
+                                Claim to Polygon Wallet
+                                <ArrowUpRight size={18} />
+                            </>
+                        )}
+                    </button>
+                </section>
+
+                <p className="text-center text-[10px] text-zinc-600 pb-12 flex items-center justify-center gap-2">
+                    <Clock size={10} /> Last network sync: {new Date().toLocaleTimeString()}
+                </p>
+            </div>
+
+            {/* Navigation Padding Spacer */}
+            <div className="h-24"></div>
+
+            {/* Mobile Back Button */}
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+                <Link to="/" className="px-6 py-3 rounded-full bg-zinc-900/90 border border-zinc-700 text-white font-bold text-sm shadow-2xl backdrop-blur-md hover:bg-zinc-800 transition-all flex items-center gap-2">
+                    Home Portal
+                </Link>
+            </div>
         </div>
-    )
+    );
 }
-
-export default PatientPortal
