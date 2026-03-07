@@ -1,10 +1,11 @@
-﻿import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
+﻿import React from 'react';
+import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
 
 export default function LandingPage() {
     return (
         <div className="min-h-screen bg-[#09090b] text-zinc-300 font-sans selection:bg-cyan-900 selection:text-cyan-50 overflow-x-hidden">
 
-            {/* 1. NAVIGATION BAR */}
+            {/* NAVIGATION BAR */}
             <nav className="border-b border-zinc-800/50 bg-[#09090b]/80 backdrop-blur-md fixed top-0 w-full z-50">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -21,7 +22,7 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* 2. HERO SECTION */}
+            {/* HERO SECTION */}
             <main className="max-w-7xl mx-auto px-6 pt-40 pb-24 grid lg:grid-cols-2 gap-16 items-center">
                 <div className="space-y-8 z-10">
                     <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono">
@@ -92,7 +93,7 @@ export default function LandingPage() {
                 </div>
             </main>
 
-            {/* 3. THE RAPHA ECOSYSTEM (Fixed CTAs) */}
+            {/* THE RAPHA ECOSYSTEM */}
             <section className="border-t border-zinc-800/50 bg-[#0c0c0e] py-24 relative">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16 space-y-4">
@@ -152,7 +153,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* 4. THE ARCHITECTURE GRID */}
+            {/* THE ARCHITECTURE GRID */}
             <section className="border-t border-zinc-800/50 bg-[#09090b] py-24 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16 space-y-4">
@@ -180,7 +181,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* 5. DEVELOPER QUICKSTART */}
+            {/* DEVELOPER QUICKSTART */}
             <section className="py-24 max-w-5xl mx-auto px-6 border-t border-zinc-800/50">
                 <div className="flex items-center gap-3 mb-10">
                     <Cpu className="text-cyan-400" />
@@ -218,7 +219,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* 6. FOOTER */}
+            {/* FOOTER */}
             <footer className="border-t border-zinc-800/50 py-12 text-center text-sm text-zinc-500 bg-[#09090b]">
                 <div className="flex justify-center items-center gap-2 mb-4">
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
