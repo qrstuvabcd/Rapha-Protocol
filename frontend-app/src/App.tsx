@@ -1,3 +1,4 @@
+import './index.css';
 import { Routes, Route } from 'react-router-dom'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { Rapha2Landing, LegacyLandingPage, Whitepaper } from './pages'
