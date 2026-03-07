@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useState, useEffect, Component, type ErrorInfo, type ReactNode } from 'react'
-import { LandingPage, PatientPortal, HospitalPortal, AIResearchPortal, Whitepaper, LegacyLandingPage } from './pages'
+import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { Rapha2Landing, PatientPortal, HospitalPortal, AIResearchPortal, Whitepaper, LegacyLandingPage } from './pages'
 import { VerifierPortal } from './pages/VerifierPortal'
 import { KeeperApplication } from './pages/KeeperApplication'
 import { KeeperDashboard } from './pages/KeeperDashboard'
@@ -8,8 +8,6 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy'
 import { TermsPage } from './pages/TermsPage'
 import { DataPoolDemo } from './components/marketplace/DataPoolDemo'
 import { JsonLd } from './components/SEO/JsonLd'
-import { checkJurisdiction, GeoBlockedMessage } from './services/geo.service'
-import { isDemoMode } from './services/demoMode'
 import './App.css'
 
 // Error Boundary to catch and display runtime errors
@@ -54,40 +52,19 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 }
 
 function App() {
-  const [geoBlocked, setGeoBlocked] = useState(false)
-  const [isChecking, setIsChecking] = useState(true)
-
-  useEffect(() => {
-    if (isDemoMode()) {
-      setIsChecking(false)
-      return
-    }
-    checkJurisdiction().then(result => {
-      setGeoBlocked(!result.allowed)
-      setIsChecking(false)
-    })
-  }, [])
-
-  if (isChecking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
-
-  if (geoBlocked) {
-    return <GeoBlockedMessage />
-  }
-
   return (
     <BrowserRouter>
       <JsonLd />
       <ErrorBoundary>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          {/* Rapha 2.0 — New Root */}
+          <Route path="/" element={<Rapha2Landing />} />
+
+          {/* Legacy Archive — Investors can see v1.0 shipping history */}
           <Route path="/legacy" element={<LegacyLandingPage />} />
           <Route path="/v1" element={<LegacyLandingPage />} />
+
+          {/* Existing Portals */}
           <Route path="/patient" element={<PatientPortal />} />
           <Route path="/hospital" element={<HospitalPortal />} />
           <Route path="/ai-research" element={<AIResearchPortal />} />

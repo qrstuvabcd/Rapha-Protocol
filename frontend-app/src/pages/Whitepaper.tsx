@@ -2,14 +2,6 @@
 import { PageFooter } from '../components/PageFooter'
 
 export function Whitepaper() {
-    // Custom Latex-like formula component
-    const Formula = ({ children }: { children: React.ReactNode }) => (
-        <div className="my-6 p-4 bg-slate-900 border border-slate-700 rounded-xl overflow-x-auto shadow-inner">
-            <code className="text-emerald-400 font-mono text-sm md:text-base whitespace-nowrap">
-                {children}
-            </code>
-        </div>
-    )
 
     const SectionHeader = ({ id, number, title }: { id: string, number: string, title: string }) => (
         <h2 id={id} className="text-3xl font-bold text-white mb-8 flex items-center gap-4 scroll-mt-24 border-b border-white/10 pb-4">

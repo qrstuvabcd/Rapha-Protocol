@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi'
-import { parseUnits } from 'viem'
-import { RAPHA_BOUNTY_POOL_ABI, ERC20_ABI, USDC_ADDRESS } from '../config/contracts'
 
 export interface JoinSettings {
     recordIds: string[]
@@ -29,70 +26,22 @@ interface JoinPoolModalProps {
 }
 
 export function JoinPoolModal({ pool, onConfirm, onClose }: JoinPoolModalProps) {
-    const { address: userAddress } = useAccount()
-
-    // Local State
+    // Local State — wagmi hooks removed (no WagmiProvider in app yet; contract not deployed)
     const [agreed, setAgreed] = useState(false)
     const [stakeAmount, setStakeAmount] = useState('50') // Default 50 USDC
+    const [isJoining, setIsJoining] = useState(false)
+    const [isJoinSuccess, setIsJoinSuccess] = useState(false)
 
-    // Wagmi Hooks
-    const { writeContract: writeApprove, data: approveTxHash, isPending: isApproving } = useWriteContract()
-    const { writeContract: writeJoin, data: joinTxHash, isPending: isJoiningContract } = useWriteContract()
-
-    const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({
-        hash: approveTxHash,
-    })
-
-    const { isLoading: isJoinConfirming, isSuccess: isJoinSuccess } = useWaitForTransactionReceipt({
-        hash: joinTxHash,
-    })
-
-    // Read Allowance
-    const { data: allowance } = useReadContract({
-        address: USDC_ADDRESS as `0x${string}`, // Check USDC Allowance
-        abi: ERC20_ABI,
-        functionName: 'allowance',
-        args: [userAddress as `0x${string}`, pool.address as `0x${string}`],
-        query: {
-            enabled: !!userAddress && !!pool.address,
-        }
-    })
-
-    const parsedStakeAmount = stakeAmount ? parseUnits(stakeAmount, 6) : 0n // USDC has 6 decimals
-    const hasAllowance = allowance ? allowance >= parsedStakeAmount : false
-
-    // State Logic
-    const isProcessing = isApproving || isApproveConfirming || isJoiningContract || isJoinConfirming
-    const needsApproval = !hasAllowance && !isApproveSuccess
-
-    // Handlers
-    const handleApprove = () => {
-        if (!parsedStakeAmount) return
-        writeApprove({
-            address: USDC_ADDRESS as `0x${string}`,
-            abi: ERC20_ABI,
-            functionName: 'approve',
-            args: [pool.address as `0x${string}`, parsedStakeAmount],
-        })
-    }
-
-    const handleJoin = () => {
-        if (!parsedStakeAmount) return
-        writeJoin({
-            address: pool.address as `0x${string}`,
-            abi: RAPHA_BOUNTY_POOL_ABI,
-            functionName: 'joinPool',
-            args: [parsedStakeAmount],
-        })
-    }
-
-    // Effect: Auto-trigger join or close on success could be added, but manual is better for now.
-    // If join success, call onConfirm to update backend/UI if needed
-    if (isJoinSuccess) {
-        // Delay slightly to show success state
+    const handleJoin = async () => {
+        if (!agreed || !stakeAmount) return
+        setIsJoining(true)
+        // Simulate confirmation since contract isn't deployed yet
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        setIsJoinSuccess(true)
         setTimeout(() => {
             onConfirm({ recordIds: [], termsAccepted: true }).then(onClose)
         }, 2000)
+        setIsJoining(false)
     }
 
     const daysRemaining = Math.ceil((pool.deadline - Date.now() / 1000) / 86400)
@@ -174,15 +123,8 @@ export function JoinPoolModal({ pool, onConfirm, onClose }: JoinPoolModalProps) 
                     </span>
                 </label>
 
-                {/* Wallet Info */}
-                <div className="text-xs text-slate-500 mb-4 text-center">
-                    Joining as: <span className="font-mono">{userAddress?.slice(0, 6)}...{userAddress?.slice(-4)}</span>
-                </div>
-
                 {/* Actions */}
                 <div className="flex flex-col gap-3">
-                    {/* Error Display */}
-                    {/* Steps UI */}
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}
@@ -191,35 +133,17 @@ export function JoinPoolModal({ pool, onConfirm, onClose }: JoinPoolModalProps) 
                             Cancel
                         </button>
 
-                        {!userAddress ? (
-                            <button className="flex-1 btn-gradient">Connect Wallet</button>
-                            // Ideally handled by RainbowKit ConnectButton, assuming parent handles connection or valid user
-                        ) : isJoinSuccess ? (
+                        {isJoinSuccess ? (
                             <button className="flex-1 bg-emerald-500 text-white rounded-xl py-3 cursor-default">
                                 ✅ Active in Pool
-                            </button>
-                        ) : needsApproval ? (
-                            <button
-                                onClick={handleApprove}
-                                disabled={!agreed || isProcessing || !stakeAmount}
-                                className="flex-1 btn-gradient disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isApproving || isApproveConfirming ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        Approving...
-                                    </>
-                                ) : (
-                                    `Approve ${stakeAmount || '0'} USDC`
-                                )}
                             </button>
                         ) : (
                             <button
                                 onClick={handleJoin}
-                                disabled={!agreed || isProcessing || !stakeAmount}
+                                disabled={!agreed || isJoining || !stakeAmount}
                                 className="flex-1 btn-gradient disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                {isJoiningContract || isJoinConfirming ? (
+                                {isJoining ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                         Joining Pool...
@@ -230,10 +154,9 @@ export function JoinPoolModal({ pool, onConfirm, onClose }: JoinPoolModalProps) 
                             </button>
                         )}
                     </div>
-
-                    {/* Transaction Hashes */}
-                    {approveTxHash && <div className="text-xs text-slate-500 text-center truncate">Approve Tx: {approveTxHash}</div>}
-                    {joinTxHash && <div className="text-xs text-slate-500 text-center truncate">Join Tx: {joinTxHash}</div>}
+                    <p className="text-xs text-slate-500 text-center">
+                        ⚠️ Contract not yet deployed — this is a demo confirmation.
+                    </p>
                 </div>
             </div>
         </div>

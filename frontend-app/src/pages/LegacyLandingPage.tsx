@@ -248,5 +248,3 @@ export function LegacyLandingPage() {
         </div>
     );
 }
-
-export default LandingPage;

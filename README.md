@@ -1,87 +1,122 @@
-# Rapha Protocol (v2.0)
-
 <div align="center">
-  <img src="https://via.placeholder.com/800x200/0f172a/38bdf8?text=RAPHA.LTD+-+COMPUTE+TO+DATA" alt="Rapha Protocol Banner" />
 
-  **The Enterprise API for Decentralized Compute-to-Data** <br/>
-  *Train AI on Clinical Data. Without Moving the Data.*
+# Rapha Protocol
 
-  [![Status](https://img.shields.io/badge/Status-Beta-emerald.svg)]()
-  [![License](https://img.shields.io/badge/License-MIT-blue.svg)]()
-  [![PyPI](https://img.shields.io/badge/PyPI-rapha--ai-blueviolet)]()
-  [![Website](https://img.shields.io/badge/Website-rapha.ltd-black)](https://rapha.ltd)
+### The Compute-to-Data API for Medical AI
+
+[![PyPI](https://img.shields.io/pypi/v/rapha-ai?style=flat-square&color=06b6d4&label=rapha-ai)](https://pypi.org/project/rapha-ai)
+[![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg?style=flat-square)](LICENSE)
+[![Polygon Mainnet](https://img.shields.io/badge/Polygon-Mainnet-8247e5?style=flat-square&logo=polygon)](https://polygonscan.com/address/0x5468B7d5F4A52d00b4192874598b620e53a0CcA6)
+[![Render](https://img.shields.io/badge/API-Live-10b981?style=flat-square)](https://api.rapha.ltd)
+
+**Train AI on hospital data. Without moving the data.**
+
+[Website](https://rapha.ltd) · [PyPI SDK](https://pypi.org/project/rapha-ai) · [Whitepaper](https://rapha.ltd/whitepaper) · [Escrow Contract](https://polygonscan.com/address/0x5468B7d5F4A52d00b4192874598b620e53a0CcA6)
+
 </div>
 
 ---
 
-## 🛑 The Regulatory Data Trap
+## The Problem
 
-The current landscape of medical AI development is paralyzed by strict data sovereignty laws (HIPAA, GDPR). Moving raw, unanonymized patient data out of hospital silos to centralized AI data centers creates massive legal liability and procedural bottlenecks. 
+AI models need high-quality clinical data. But HIPAA and GDPR make it **legally toxic** for hospitals to export patient records to centralized data centers. The result: the world's best healthcare data sits locked inside hospital firewalls, inaccessible to the AI models that need it most.
 
-**Rapha 2.0 reverses the vector.** Instead of moving regulated data out to the AI models, we route the AI models *into* the hospital to train natively. If the data never leaves the firewall, there is zero HIPAA liability.
+## The Solution
 
-## 🏗️ Architecture
+Rapha Protocol reverses the paradigm. Instead of moving data to the algorithm, **we move the algorithm to the data**.
 
-Rapha Protocol consists of four interconnected layers:
+We route encrypted AI training payloads directly into hospital firewalls using **Trusted Execution Environments (TEEs)** and verify model integrity using **ZK-TLS cryptography**. Payment is settled automatically via **USDC escrow on Polygon**.
 
-1. **`rapha-enterprise-node` (Hospital Layer)**  
-   A Dockerized FastAPI application deployed securely *behind* hospital firewalls. It creates a Trusted Execution Environment (TEE) where AI models can ingest and train on local EHR (Electronic Health Record) databases without exposing the raw data layer. 
-
-2. **`rapha-ai-sdk` (Demand Layer)**  
-   A PyPI package (`pip install rapha-ai`) that allows researchers to encrypt their model architectures, transmit them over the wire to the enterprise nodes, and receive mathematically proven gradient updates natively in Python.
-
-3. **`rapha-smart-contracts` (Settlement Layer)**  
-   Deployed on **Polygon Mainnet**, these smart contracts act as trustless escrow agents. Researchers lock USDC. Once the enterprise node returns a valid ZK-SNARK proving the compute was executed correctly on verifiable data, the USDC is instantly settled to the hospital's treasury.
-
-4. **`frontend-app` (Network Dashboard)**  
-   A Next.js, React, and Tailwind CSS portal that allows developers, hospitals, and medical "Keepers" (validators) to track network throughput, manage DIDs via Lit Protocol, and instantiate new AI compute bounties.
-
-## 🚀 Quick Start (For AI Researchers)
-
-Interacting with the Rapha network requires zero blockchain infrastructure knowledge.
-
-### 1. Installation
-```bash
-pip install rapha-ai python-dotenv
-```
-
-### 2. Executing a Compute Job
-```python
-import os
-import rapha_ai
-
-# Initialize the ZK-TLS Connection
-client = rapha_ai.Client(
-    node="https://api.rapha.ltd", # Hospital's public Node IP 
-    escrow="0xF1437ee28076B0A55B7D3CBB497A11D6D69362aC", # Polygon Escrow
-    network="polygon",
-    private_key=os.environ["ETH_PRIVATE_KEY"]
-)
-
-# Transmit Model into Hospital TEE
-receipt = client.train(
-    model='llama-3-8b-medical',
-    dataset='stanford_med_ehr_v2',
-    epochs=10
-)
-
-print(f"✅ Success! Escrow Settled. Proof: {receipt.zk_hash}")
-```
-
-## 🛠️ Monorepo Structure
-
-```text
-rapha-protocol-core/
-├── rapha-enterprise-node/    # Python (FastAPI/SQLite/Docker)
-├── rapha-ai-sdk/             # Python (PyPI Package)
-├── rapha-smart-contracts/    # Solidity (Hardhat/Polygon deploy)
-├── frontend-app/             # TypeScript (React/Vite/Tailwind)
-└── rapha-edge-ios/           # Swift (Legacy Edge Mobile Client)
-```
-
-## 🤝 Contributing
-
-We welcome contributions from cryptography engineers and AI researchers. Please read `CONTRIBUTING.md` before submitting pull requests regarding the ZK-TLS implementation.
+> Zero data leaves the building. Zero HIPAA liability.
 
 ---
-*Built with ⚡️ by Rapha Research Labs, 2026. For enterprise pilot inquiries, contact pilots@rapha.ltd.*
+
+## Quickstart
+
+```bash
+pip install rapha-ai
+```
+
+```python
+import rapha_ai
+
+# Connect to Polygon Mainnet
+client = rapha_ai.Client(
+    api_key="sk_live_...",
+    network="polygon-mainnet"
+)
+
+# Dispatch training into a hospital TEE
+job = client.train(
+    model="llama-3-base",
+    target_node="tokyo_oncology_01",
+    epochs=5
+)
+
+print(f"✓ ZK-Proof: {job.zk_receipt}")
+# → Escrow settled: 250 USDC → tokyo_oncology_01.treasury
+```
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     RAPHA PROTOCOL v2.0                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────────┐    ┌──────────────────┐    ┌───────────┐ │
+│  │  rapha-ai (SDK)   │───▶│ Enterprise Node  │───▶│  Polygon  │ │
+│  │  PyPI Package     │    │  FastAPI + TEE   │    │  Escrow   │ │
+│  │  Python 3.9+      │    │  Docker + SQLite │    │  USDC     │ │
+│  └──────────────────┘    └──────────────────┘    └───────────┘ │
+│         ▲                        │                      │       │
+│         │                  ZK-SNARK Proof          Settlement   │
+│    Researcher              of Training             on-chain     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Monorepo Structure
+
+| Package | Description | Status |
+|---------|------------|--------|
+| [`rapha-ai-sdk/`](./rapha-ai-sdk) | Python SDK published on PyPI | [![PyPI](https://img.shields.io/pypi/v/rapha-ai?style=flat-square&color=06b6d4)](https://pypi.org/project/rapha-ai) |
+| [`rapha-protocol-core/rapha-enterprise-node/`](./rapha-protocol-core/rapha-enterprise-node) | FastAPI compute node (deployed to hospital TEEs) | ![Live](https://img.shields.io/badge/Status-Live-10b981?style=flat-square) |
+| [`rapha-protocol-core/rapha-smart-contracts/`](./rapha-protocol-core/rapha-smart-contracts) | Solidity escrow contracts on Polygon Mainnet | ![Deployed](https://img.shields.io/badge/Polygon-Deployed-8247e5?style=flat-square) |
+| [`frontend-app/`](./frontend-app) | React + Vite + Tailwind frontend | ![Vercel](https://img.shields.io/badge/Vercel-Deployed-white?style=flat-square) |
+
+---
+
+## How It Works
+
+1. **Researcher** installs `rapha-ai` and calls `client.train()` with a model architecture and target hospital node.
+2. **SDK** encrypts the model weights and dispatches the payload over ZK-TLS to the hospital's enterprise node.
+3. **Enterprise Node** (running inside a Docker TEE behind the hospital firewall) trains the model on local EHR data.
+4. **ZK-SNARK Proof** is generated to cryptographically attest the training was executed faithfully.
+5. **Polygon Escrow** verifies the proof on-chain and releases USDC payment to the hospital treasury.
+
+---
+
+## Smart Contract
+
+**RaphaEscrow.sol** — Deployed to Polygon Mainnet
+
+| Contract | Address |
+|----------|---------|
+| RaphaEscrow | [`0x5468B7d5F4A52d00b4192874598b620e53a0CcA6`](https://polygonscan.com/address/0x5468B7d5F4A52d00b4192874598b620e53a0CcA6) |
+
+Settlement states: `FUNDED → TRAINING → SETTLEMENT`
+
+---
+
+## Team
+
+Built at **Antler Inception Residency** (London, 2026).
+
+---
+
+## License
+
+MIT © Rapha Protocol
