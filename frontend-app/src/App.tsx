@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useState, useEffect, Component, type ErrorInfo, type ReactNode } from 'react'
-import { LandingPage, PatientPortal, HospitalPortal, AIResearchPortal, Whitepaper } from './pages'
+import { LandingPage, PatientPortal, HospitalPortal, AIResearchPortal, Whitepaper, LegacyLandingPage } from './pages'
 import { VerifierPortal } from './pages/VerifierPortal'
 import { KeeperApplication } from './pages/KeeperApplication'
 import { KeeperDashboard } from './pages/KeeperDashboard'
@@ -86,6 +86,8 @@ function App() {
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/legacy" element={<LegacyLandingPage />} />
+          <Route path="/v1" element={<LegacyLandingPage />} />
           <Route path="/patient" element={<PatientPortal />} />
           <Route path="/hospital" element={<HospitalPortal />} />
           <Route path="/ai-research" element={<AIResearchPortal />} />

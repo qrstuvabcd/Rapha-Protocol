@@ -11,48 +11,49 @@ export function PageFooter() {
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                     {/* Legal Links */}
-                    <div className="flex items-center gap-6 text-sm">
-                        <Link to="/terms" className="text-rapha-muted hover:text-white transition-colors">
-                            Terms of Service
-                        </Link>
-                        <Link to="/privacy" className="text-rapha-muted hover:text-white transition-colors">
-                            Privacy Policy
-                        </Link>
-                        <Link to="/whitepaper" className="text-rapha-muted hover:text-white transition-colors">
-                            Whitepaper
-                        </Link>
-                        <a href="https://github.com/qrstuvabcd/Rapha-Protocol" target="_blank" rel="noopener noreferrer" className="text-rapha-muted hover:text-white transition-colors">
-                            GitHub
-                        </a>
-                    </div>
-
-                    {/* Copyright */}
-                    <p className="text-xs text-rapha-muted">
-                        © 2026 Rapha Protocol. All rights reserved. Governed by ROC (Taiwan) law.
-                    </p>
+                    <Link to="/terms" className="text-rapha-muted hover:text-white transition-colors">
+                        Terms of Service
+                    </Link>
+                    <Link to="/privacy" className="text-rapha-muted hover:text-white transition-colors">
+                        Privacy Policy
+                    </Link>
+                    <Link to="/whitepaper" className="text-rapha-muted hover:text-white transition-colors">
+                        Whitepaper
+                    </Link>
+                    <Link to="/legacy" className="text-rapha-muted hover:text-white transition-colors">
+                        v1.0 App Archive
+                    </Link>
+                    <a href="https://github.com/qrstuvabcd/rapha-protocol-core" target="_blank" rel="noopener noreferrer" className="text-rapha-muted hover:text-white transition-colors">
+                        GitHub
+                    </a>
                 </div>
 
-                {/* Testing Warning */}
-                <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <p className="text-xs text-white text-center font-medium">
-                        ⚠️ <strong>TESTING PRODUCT IN DEVELOPMENT</strong> ⚠️
-                    </p>
-                    <p className="text-xs text-rapha-muted text-center mt-1">
-                        This is an experimental product under active development. By using this service, you acknowledge and agree that:
-                        <strong className="text-white/80"> you may lose everything</strong> including all assets, data, and funds.
-                        Rapha Protocol and its developers <strong className="text-white/80">take NO legal responsibility</strong> for any losses, damages, or issues.
-                        Use entirely at your own risk.
-                    </p>
-                </div>
+                {/* Copyright */}
+                <p className="text-xs text-rapha-muted">
+                    © 2026 Rapha Protocol. All rights reserved. Governed by ROC (Taiwan) law.
+                </p>
+            </div>
 
-                {/* Disclaimer */}
-                <div className="mt-3 p-3 rounded-lg bg-black/40 border border-white/5">
-                    <p className="text-xs text-rapha-muted/80 text-center">
-                        <strong className="text-rapha-muted">Disclaimer:</strong> Rapha Protocol is provided "as is" without warranty.
-                        Medical data is user-contributed and not verified. Not medical advice.
-                        Blockchain transactions are irreversible. Use at your own risk.
-                    </p>
-                </div>
+            {/* Testing Warning */}
+            <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm">
+                <p className="text-xs text-white text-center font-medium">
+                    ⚠️ <strong>TESTING PRODUCT IN DEVELOPMENT</strong> ⚠️
+                </p>
+                <p className="text-xs text-rapha-muted text-center mt-1">
+                    This is an experimental product under active development. By using this service, you acknowledge and agree that:
+                    <strong className="text-white/80"> you may lose everything</strong> including all assets, data, and funds.
+                    Rapha Protocol and its developers <strong className="text-white/80">take NO legal responsibility</strong> for any losses, damages, or issues.
+                    Use entirely at your own risk.
+                </p>
+            </div>
+
+            {/* Disclaimer */}
+            <div className="mt-3 p-3 rounded-lg bg-black/40 border border-white/5">
+                <p className="text-xs text-rapha-muted/80 text-center">
+                    <strong className="text-rapha-muted">Disclaimer:</strong> Rapha Protocol is provided "as is" without warranty.
+                    Medical data is user-contributed and not verified. Not medical advice.
+                    Blockchain transactions are irreversible. Use at your own risk.
+                </p>
             </div>
         </footer>
     )
