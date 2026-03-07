@@ -7,7 +7,6 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        {/* Failsafe wildcard route: redirects any broken links to the homepage so the app never crashes */}
         <Route path="*" element={<LandingPage />} />
       </Routes>
     </Router>
