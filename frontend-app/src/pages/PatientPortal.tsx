@@ -1,5 +1,5 @@
 ﻿
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Cpu,
     Zap,
@@ -17,19 +17,46 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 export default function PatientPortal() {
+    const [isTraining, setIsTraining] = useState(false);
     const [isClaiming, setIsClaiming] = useState(false);
-    const [balance, setBalance] = useState(142.50);
+    const [balance, setBalance] = useState(0.00);
+    const [ledger, setLedger] = useState<{ id: string; study: string; clinical: string; amount: number; time: string; type: 'alzheimer' | 'cardio' }[]>([]);
     const [toggles, setToggles] = useState({
-        heartRate: true,
-        sleep: true,
+        heartRate: false,
+        sleep: false,
         hrv: false
     });
+
+    // Simulate reward accumulation when training is active
+    useEffect(() => {
+        let interval: any;
+        if (isTraining) {
+            interval = setInterval(() => {
+                setBalance(prev => prev + 0.012);
+
+                // Occasionally add to ledger
+                if (Math.random() > 0.8) {
+                    const newEntry = {
+                        id: Math.random().toString(36).substr(2, 9),
+                        study: Math.random() > 0.5 ? "Alzheimer's Study" : "Cardio-Mapping",
+                        clinical: Math.random() > 0.5 ? "Oxford Neurological" : "Mayo Clinic Research",
+                        amount: 0.042,
+                        time: "Just now",
+                        type: (Math.random() > 0.5 ? 'alzheimer' : 'cardio') as 'alzheimer' | 'cardio'
+                    };
+                    setLedger(prev => [newEntry, ...prev].slice(0, 5));
+                }
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [isTraining]);
 
     const toggleHealth = (key: keyof typeof toggles) => {
         setToggles(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     const handleClaim = () => {
+        if (balance <= 0) return;
         setIsClaiming(true);
         setTimeout(() => {
             setBalance(0);
@@ -59,30 +86,46 @@ export default function PatientPortal() {
                 <section className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
-                            <Zap size={14} className="text-yellow-400" />
+                            <Zap size={14} className={isTraining ? "text-yellow-400" : "text-zinc-700"} />
                             NPU Activity (On-Device)
                         </h2>
-                        <span className="text-[10px] font-mono text-zinc-600">42% Load</span>
+                        <span className="text-[10px] font-mono text-zinc-600">{isTraining ? '42% Load' : '0% Idle'}</span>
                     </div>
 
                     <div className="h-32 bg-zinc-900/50 rounded-2xl border border-zinc-800 flex items-end justify-between p-4 gap-1 overflow-hidden relative">
                         <div className="absolute inset-0 bg-gradient-to-t from-purple-500/5 to-transparent"></div>
-                        {[...Array(12)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ height: 10 }}
-                                animate={{ height: [10, 40 + Math.random() * 60, 20 + Math.random() * 40, 10] }}
-                                transition={{
-                                    repeat: Infinity,
-                                    duration: 1.5 + Math.random(),
-                                    delay: i * 0.1,
-                                    ease: "easeInOut"
-                                }}
-                                className="w-full bg-gradient-to-t from-purple-600/40 to-purple-400 rounded-t-sm"
-                            />
-                        ))}
+                        {isTraining ? (
+                            [...Array(12)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ height: 10 }}
+                                    animate={{ height: [10, 40 + Math.random() * 60, 20 + Math.random() * 40, 10] }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 1.5 + Math.random(),
+                                        delay: i * 0.1,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="w-full bg-gradient-to-t from-purple-600/40 to-purple-400 rounded-t-sm"
+                                />
+                            ))
+                        ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-[10px] text-zinc-700 font-mono tracking-widest uppercase">
+                                System Standby
+                            </div>
+                        )}
                     </div>
-                    <p className="text-[10px] text-center text-zinc-500 font-medium">Training Local Llama-3 (Edge Adaptor) while device is charging.</p>
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-[10px] text-zinc-500 font-medium">
+                            {isTraining ? "Training Local Llama-3 (Edge Adaptor) while device is charging." : "Connect to network power to begin edge compute training."}
+                        </p>
+                        <button
+                            onClick={() => setIsTraining(!isTraining)}
+                            className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${isTraining ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-purple-500 text-white shadow-lg shadow-purple-500/20'}`}
+                        >
+                            {isTraining ? 'Stop Training' : 'Start Training'}
+                        </button>
+                    </div>
                 </section>
 
                 {/* Gradient Ledger */}
@@ -92,38 +135,31 @@ export default function PatientPortal() {
                         <h2 className="font-bold text-white">The Gradient Ledger</h2>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between group">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
-                                    <Activity size={18} className="text-cyan-400" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-white">Alzheimer's Study</p>
-                                    <p className="text-[10px] text-zinc-500">Oxford Neurological</p>
-                                </div>
+                    <div className="space-y-4 min-h-[120px] flex flex-col justify-center">
+                        {ledger.length === 0 ? (
+                            <div className="text-center space-y-2 py-4">
+                                <p className="text-xs font-bold text-zinc-600 uppercase tracking-tighter">No weights contributed yet</p>
+                                <p className="text-[10px] text-zinc-700">Accumulate gradients by enabling Edge Training</p>
                             </div>
-                            <div className="text-right">
-                                <p className="text-xs font-mono font-bold text-cyan-400">+0.042 Gradient</p>
-                                <p className="text-[10px] text-zinc-600">2h ago</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between group">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                                    <Heart size={18} className="text-purple-400" />
+                        ) : (
+                            ledger.map((entry) => (
+                                <div key={entry.id} className="flex items-center justify-between group">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${entry.type === 'alzheimer' ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400' : 'bg-purple-500/10 border-purple-500/20 text-purple-400'}`}>
+                                            {entry.type === 'alzheimer' ? <Activity size={18} /> : <Heart size={18} />}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-white">{entry.study}</p>
+                                            <p className="text-[10px] text-zinc-500">{entry.clinical}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className={`text-xs font-mono font-bold ${entry.type === 'alzheimer' ? 'text-cyan-400' : 'text-purple-400'}`}>+{entry.amount} Gradient</p>
+                                        <p className="text-[10px] text-zinc-600">{entry.time}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-xs font-bold text-white">Cardio-Mapping</p>
-                                    <p className="text-[10px] text-zinc-500">Mayo Clinic Research</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-xs font-mono font-bold text-purple-400">+0.108 Gradient</p>
-                                <p className="text-[10px] text-zinc-600">6h ago</p>
-                            </div>
-                        </div>
+                            ))
+                        )}
                     </div>
 
                     <button className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-800/50 text-xs font-bold hover:bg-zinc-800 transition-all border border-transparent hover:border-zinc-700">

@@ -26,10 +26,18 @@ const LOG_MESSAGES = [
 
 export default function HospitalPortal() {
     const [logs, setLogs] = useState<string[]>([]);
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
+    const [mappings, setMappings] = useState<{ path: string; id: string; type: string; status: string }[]>([]);
     const [pairingKey, setPairingKey] = useState<string | null>(null);
+    const [newPath, setNewPath] = useState("");
     const logEndRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
+    const startConnection = () => {
+        if (isConnecting || isConnected) return;
+        setIsConnecting(true);
+        setLogs([]);
+
         let i = 0;
         const interval = setInterval(() => {
             if (i < LOG_MESSAGES.length) {
@@ -37,10 +45,24 @@ export default function HospitalPortal() {
                 i++;
             } else {
                 clearInterval(interval);
+                setIsConnecting(false);
+                setIsConnected(true);
             }
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
+        }, 800);
+    };
+
+    const addMapping = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newPath) return;
+        const newMapping = {
+            path: newPath,
+            id: `v-node-${mappings.length + 1}-${newPath.split('/').pop()}`,
+            type: "Read-Only (TEE-Env)",
+            status: "Mounted"
+        };
+        setMappings([...mappings, newMapping]);
+        setNewPath("");
+    };
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -85,13 +107,25 @@ export default function HospitalPortal() {
                                     <Terminal size={14} />
                                     Firewall Handshake Log
                                 </div>
+                                {!isConnected && !isConnecting && (
+                                    <button
+                                        onClick={startConnection}
+                                        className="px-3 py-1 bg-blue-500 text-white text-[10px] font-bold rounded hover:bg-blue-600 transition-colors"
+                                    >
+                                        Establish Connection
+                                    </button>
+                                )}
                                 <div className="flex gap-1.5">
-                                    <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
-                                    <div className="w-2 h-2 rounded-full bg-yellow-500/50"></div>
-                                    <div className="w-2 h-2 rounded-full bg-green-500/50"></div>
+                                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : isConnecting ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
                                 </div>
                             </div>
                             <div className="p-4 h-64 overflow-y-auto font-mono text-sm space-y-2 scrollbar-hide">
+                                {logs.length === 0 && !isConnecting && (
+                                    <div className="text-zinc-700 italic flex flex-col items-center justify-center h-full gap-2">
+                                        <Activity size={24} className="opacity-20" />
+                                        Waiting for manual handshake...
+                                    </div>
+                                )}
                                 {logs.map((log, idx) => (
                                     <div key={idx} className={`${log.includes('SUCCESS') || log.includes('Verified') ? 'text-green-400' : log.includes('SEC') ? 'text-blue-400' : 'text-zinc-500'}`}>
                                         <span className="opacity-50 mr-2">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
@@ -109,17 +143,26 @@ export default function HospitalPortal() {
                             transition={{ delay: 0.2 }}
                             className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6 space-y-6"
                         >
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
                                     <Database className="text-zinc-400" size={20} />
                                     <h2 className="text-lg font-bold text-white">Local Database Mapping</h2>
                                 </div>
-                                <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-md text-xs font-semibold hover:bg-blue-500 hover:text-white transition-all">
-                                    <Plus size={14} /> Map Directory
-                                </button>
+                                <form onSubmit={addMapping} className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="/mnt/pacs/..."
+                                        value={newPath}
+                                        onChange={(e) => setNewPath(e.target.value)}
+                                        className="bg-black border border-zinc-800 rounded px-3 py-1 text-xs focus:outline-none focus:border-blue-500/50 transition-colors w-full md:w-48"
+                                    />
+                                    <button type="submit" className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded text-xs font-semibold hover:bg-blue-500 hover:text-white transition-all whitespace-nowrap">
+                                        <Plus size={14} /> Map Directory
+                                    </button>
+                                </form>
                             </div>
 
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto min-h-[200px]">
                                 <table className="w-full text-left text-sm">
                                     <thead className="border-b border-zinc-800 text-zinc-500 uppercase text-[10px] font-bold tracking-wider">
                                         <tr>
@@ -130,26 +173,26 @@ export default function HospitalPortal() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-800/50">
-                                        <tr className="group">
-                                            <td className="py-4 px-2 font-mono text-zinc-400">/mnt/pacs/mri_scans_2024</td>
-                                            <td className="py-4 px-2 font-mono text-blue-400">v-node-01-mri</td>
-                                            <td className="py-4 px-2 text-xs">Read-Only (TEE-Env)</td>
-                                            <td className="py-4 px-2">
-                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
-                                                    Mounted
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-4 px-2 font-mono text-zinc-400">/data/ehr/patient_records</td>
-                                            <td className="py-4 px-2 font-mono text-blue-400">v-node-02-ehr</td>
-                                            <td className="py-4 px-2 text-xs">ZK-Query Restricted</td>
-                                            <td className="py-4 px-2">
-                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
-                                                    Mounted
-                                                </span>
-                                            </td>
-                                        </tr>
+                                        {mappings.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={4} className="py-12 text-center text-zinc-600 italic text-sm">
+                                                    No active data mappings found. Add a local directory to begin.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            mappings.map((m, i) => (
+                                                <tr key={i} className="group">
+                                                    <td className="py-4 px-2 font-mono text-zinc-400">{m.path}</td>
+                                                    <td className="py-4 px-2 font-mono text-blue-400">{m.id}</td>
+                                                    <td className="py-4 px-2 text-xs">{m.type}</td>
+                                                    <td className="py-4 px-2">
+                                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
+                                                            {m.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -171,30 +214,30 @@ export default function HospitalPortal() {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border border-emerald-500/20">
+                                <div className={`flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border transition-colors ${isConnected ? 'border-emerald-500/20' : 'border-zinc-800 opacity-50'}`}>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded bg-emerald-500/10 flex items-center justify-center">
-                                            <CheckCircle2 size={16} className="text-emerald-500" />
+                                        <div className={`w-8 h-8 rounded flex items-center justify-center ${isConnected ? 'bg-emerald-500/10' : 'bg-zinc-800'}`}>
+                                            <CheckCircle2 size={16} className={isConnected ? 'text-emerald-500' : 'text-zinc-600'} />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-white">Leakage Protection</p>
-                                            <p className="text-[10px] text-zinc-500 uppercase">Disk Encrypted</p>
+                                            <p className={`text-sm font-semibold ${isConnected ? 'text-white' : 'text-zinc-500'}`}>Memory Isolation</p>
+                                            <p className="text-[10px] text-zinc-500 uppercase">Intel SGX Active</p>
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-bold text-emerald-500">VERIFIED</span>
+                                    <span className={`text-[10px] font-bold ${isConnected ? 'text-emerald-500' : 'text-zinc-700'}`}>{isConnected ? 'SECURE' : 'INACTIVE'}</span>
                                 </div>
 
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 opacity-60">
+                                <div className={`flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border transition-colors ${isConnected ? 'border-zinc-800 opacity-60' : 'border-zinc-800 opacity-30'}`}>
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center">
                                             <Activity size={16} className="text-zinc-500" />
                                         </div>
                                         <div>
                                             <p className="text-sm font-semibold text-zinc-400">ZK-TLS Audit</p>
-                                            <p className="text-[10px] text-zinc-500 uppercase">Next Sync: 4m</p>
+                                            <p className="text-[10px] text-zinc-500 uppercase">Next Sync: {isConnected ? '4m' : 'N/A'}</p>
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-bold text-zinc-500">PENDING</span>
+                                    <span className="text-[10px] font-bold text-zinc-500">{isConnected ? 'PENDING' : 'OFFLINE'}</span>
                                 </div>
                             </div>
                         </motion.div>
