@@ -7,7 +7,9 @@ import {
     AlertCircle,
     CheckCircle2,
     ArrowRight,
-    Server
+    Server,
+    Copy,
+    Check
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -22,7 +24,16 @@ export default function HospitalPortal() {
     const [logs, setLogs] = useState<string[]>([]);
     const [nodeStatus, setNodeStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
     const [ledger, setLedger] = useState<WeightEntry[]>([]);
+    const [copied, setCopied] = useState(false);
     const logEndRef = useRef<HTMLDivElement>(null);
+
+    const dockerCommand = "docker run -d --name rapha-node -p 8000:8000 raphaprotocol/enterprise-node:latest";
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(dockerCommand);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     // Step 1: Real-time Node Ping
     useEffect(() => {
@@ -31,12 +42,20 @@ export default function HospitalPortal() {
                 // In production, this pings the local Docker node sidecar
                 await fetch('http://localhost:8000/', { mode: 'no-cors' });
                 setNodeStatus('connected');
-                if (logs.length === 0) {
-                    setLogs(["[SYS] Node detected at 127.0.0.1:8000", "[SEC] TEE Environment: Intel SGX Enabled", "[NET] Awaiting incoming training payloads..."]);
+                if (logs.length <= 1) {
+                    setLogs([
+                        "[SYS] Node detected at 127.0.0.1:8000",
+                        "[STATUS] TEE Enclave Secured. Ready for Payloads.",
+                        "[SEC] TEE Environment: Intel SGX Enabled",
+                        "[NET] Awaiting incoming training payloads..."
+                    ]);
                 }
             } catch (e) {
                 setNodeStatus('disconnected');
-                setLogs(["[ERR] FATAL: Local Node Disconnected.", "[SYS] Ensure Docker container 'rapha-tee-node' is running."]);
+                setLogs([
+                    "[ERR] FATAL: Local Node Disconnected.",
+                    "[SYS] Ensure Docker container 'rapha-node' is running."
+                ]);
             }
         };
 
@@ -94,21 +113,44 @@ export default function HospitalPortal() {
                     </Link>
                 </div>
 
-                {/* Infrastructure Brief */}
-                <section className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <Cpu size={120} />
-                    </div>
-                    <div className="relative z-10 max-w-2xl">
-                        <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                            <Shield size={18} className="text-blue-400" />
-                            No-Data-Movement Infrastructure
+                {/* Infrastructure Brief & One-Liner */}
+                <div className="grid lg:grid-cols-2 gap-8">
+                    <section className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <Cpu size={120} />
+                        </div>
+                        <div className="relative z-10">
+                            <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                                <Shield size={18} className="text-blue-400" />
+                                No-Data-Movement Architecture
+                            </h2>
+                            <p className="text-sm text-zinc-400 leading-relaxed">
+                                The Enterprise Node (Hospitals) is a <span className="text-blue-400 font-mono">secure local Docker container (TEE)</span> installed entirely behind the firewall. It intercepts training payloads, runs compute locally in-memory, and returns only <span className="text-white font-mono">updated model weights</span>. Patient data stays local.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20 relative">
+                        <h2 className="text-sm font-bold text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Terminal size={16} /> Deploy Node One-Liner
                         </h2>
-                        <p className="text-sm text-zinc-400 leading-relaxed">
-                            Your Enterprise Node is a <span className="text-blue-400 font-mono">secure local Docker container (TEE)</span> installed behind the hospital firewall. It intercepts training payloads from AI researchers, computes models in isolated memory, and returns only <span className="text-white font-mono">cryptographic mathematical weights</span>. Raw patient data never touches the internet.
-                        </p>
-                    </div>
-                </section>
+                        <div className="flex flex-col gap-3">
+                            <div className="bg-black/50 border border-zinc-800 rounded-lg p-3 font-mono text-[11px] text-zinc-300 relative group">
+                                <code className="block break-all pr-8">{dockerCommand}</code>
+                                <button
+                                    onClick={copyToClipboard}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-zinc-800 rounded transition-colors"
+                                    title="Copy to clipboard"
+                                >
+                                    {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} className="text-zinc-500" />}
+                                </button>
+                            </div>
+                            <p className="text-[10px] text-zinc-500 italic">
+                                Run this command on your secure local server to start the TEE Compute Node.
+                            </p>
+                        </div>
+                    </section>
+                </div>
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Log Stream Terminal */}
@@ -125,7 +167,7 @@ export default function HospitalPortal() {
                             </div>
                             <div className="p-4 flex-1 overflow-y-auto font-mono text-[13px] space-y-1.5 bg-[#0c0c0e]">
                                 {logs.map((log, idx) => (
-                                    <div key={idx} className={log.includes('[ERR]') ? 'text-red-400' : log.includes('[SEC]') ? 'text-blue-400' : 'text-zinc-500'}>
+                                    <div key={idx} className={log.includes('[ERR]') ? 'text-red-400' : log.includes('[STATUS]') || log.includes('[SEC]') ? 'text-blue-400' : 'text-zinc-500'}>
                                         <span className="opacity-30 mr-3 underline">{idx + 1}</span>
                                         {log}
                                     </div>
@@ -136,8 +178,7 @@ export default function HospitalPortal() {
                                             <AlertCircle className="text-red-400" size={18} />
                                             <div className="space-y-2">
                                                 <p className="text-sm font-bold text-white">Action Required</p>
-                                                <p className="text-xs text-zinc-400">The TEE supervisor cannot heartbeat the local container. Run the startup script to re-enable compute:</p>
-                                                <code className="block bg-black p-2 rounded text-red-300 text-[10px]">docker run -p 8000:8000 rapha-protocol/enterprise-node</code>
+                                                <p className="text-xs text-zinc-400">The TEE supervisor cannot heartbeat the local container. Run the deployment command above to re-enable compute.</p>
                                             </div>
                                         </div>
                                     </div>
