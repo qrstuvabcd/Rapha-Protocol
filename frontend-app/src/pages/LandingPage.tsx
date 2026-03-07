@@ -1,6 +1,7 @@
 ﻿
-import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
+import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function LandingPage() {
     // Animation Variants
@@ -38,8 +39,11 @@ export default function LandingPage() {
                         <span className="font-bold text-white text-xl tracking-tight">Rapha Protocol</span>
                     </div>
                     <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
-                        <motion.a whileHover={{ scale: 1.05 }} href="/whitepaper" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Code size={16} /> Docs</motion.a>
+                        <Link to="/whitepaper" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Code size={16} /> Docs</Link>
                         <motion.a whileHover={{ scale: 1.05 }} href="https://pypi.org/project/rapha-ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Terminal size={16} /> PyPI SDK</motion.a>
+                        <Link to="/dashboard" className="border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-4 py-1.5 rounded-md transition-all">
+                            Launch Dashboard
+                        </Link>
                         <motion.a whileHover={{ scale: 1.05 }} href="/legacy" className="text-zinc-500 hover:text-zinc-300 transition-colors border border-zinc-700 px-4 py-1.5 rounded-md hover:border-zinc-500 hover:bg-zinc-900">
                             v1.0 (Legacy)
                         </motion.a>
@@ -159,9 +163,9 @@ export default function LandingPage() {
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">Stop training on synthetic garbage. Dispatch your models into the world's largest decentralized network of proprietary EHR and telemetry data.</p>
                             </div>
                             <div className="pt-4 border-t border-zinc-800 mt-auto relative z-10">
-                                <a href="https://pypi.org/project/rapha-ai" className="inline-flex items-center text-sm font-semibold text-cyan-500 hover:text-cyan-400 transition-colors">
-                                    View PyPI Documentation →
-                                </a>
+                                <Link to="/whitepaper" className="inline-flex items-center text-sm font-semibold text-cyan-500 hover:text-cyan-400 transition-colors">
+                                    View Documentation →
+                                </Link>
                             </div>
                         </motion.div>
 
@@ -176,8 +180,11 @@ export default function LandingPage() {
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">Deploy the <code className="text-blue-300 bg-blue-900/30 px-1 py-0.5 rounded border border-blue-800">rapha-node</code> container behind your firewall. Monetize siloed data without ever exposing raw patient files. Zero HIPAA liability.</p>
                             </div>
                             <div className="pt-4 border-t border-zinc-800 mt-auto space-y-3 relative z-10">
-                                <a href="/hospital" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-500/10 text-blue-400 border border-blue-500/50 font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition-all text-sm group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                                <Link to="/dashboard" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-500/10 text-blue-400 border border-blue-500/50 font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition-all text-sm group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                                     <Building2 size={16} /> Access Hospital Portal
+                                </Link>
+                                <a href="https://github.com/qrstuvabcd/Rapha-Protocol/tree/main/nodes/enterprise-node" className="flex items-center justify-center gap-2 w-full px-6 py-2 bg-zinc-900 text-zinc-400 border border-zinc-800 text-xs font-medium rounded-lg hover:bg-zinc-800 hover:text-zinc-200 transition-all">
+                                    <ExternalLink size={14} /> Download Docker Node
                                 </a>
                             </div>
                         </motion.div>
@@ -193,9 +200,9 @@ export default function LandingPage() {
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">You own your health data. Cryptographically sign compute-consent transactions and earn token bounties when your data is utilized.</p>
                             </div>
                             <div className="pt-4 border-t border-zinc-800 mt-auto space-y-3 relative z-10">
-                                <a href="/patient" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-purple-500/10 text-purple-400 border border-purple-500/50 font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-all text-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                                <Link to="/dashboard" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-purple-500/10 text-purple-400 border border-purple-500/50 font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-all text-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]">
                                     <HeartPulse size={16} /> Access Patient Portal
-                                </a>
+                                </Link>
                             </div>
                         </motion.div>
                     </motion.div>
