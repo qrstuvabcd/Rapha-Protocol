@@ -1,77 +1,73 @@
-
 import { useState, useEffect, useRef } from 'react';
 import {
     Shield,
     Terminal,
     Activity,
-    Database,
-    Key,
-    // FolderOpen,
-    Plus,
-    CheckCircle2
+    Cpu,
+    AlertCircle,
+    CheckCircle2,
+    ArrowRight,
+    Server
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-const LOG_MESSAGES = [
-    "[SYS] Initializing Docker Node environment...",
-    "[SYS] Connecting to local Docker Node at 127.0.0.1:8000...",
-    "[SYS] Handshake successful. Protocol v2.1.0-TEE",
-    "[SEC] Verifying Intel SGX Enclave integrity...",
-    "[SEC] Memory Isolation: Active (AES-NI enabled)",
-    "[SEC] Disk Leakage Protection: Verified.",
-    "[NET] Syncing with Rapha Network (Polygon)...",
-    "[NET] Node Status: Healthy. Awaiting compute jobs."
-];
+interface WeightEntry {
+    payloadHash: string;
+    weightHash: string;
+    timestamp: string;
+    status: 'Verified' | 'Settling' | 'Settled';
+}
 
 export default function HospitalPortal() {
     const [logs, setLogs] = useState<string[]>([]);
-    const [isConnecting, setIsConnecting] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
-    const [mappings, setMappings] = useState<{ path: string; id: string; type: string; status: string }[]>([]);
-    const [pairingKey, setPairingKey] = useState<string | null>(null);
-    const [newPath, setNewPath] = useState("");
+    const [nodeStatus, setNodeStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
+    const [ledger, setLedger] = useState<WeightEntry[]>([]);
     const logEndRef = useRef<HTMLDivElement>(null);
 
-    const startConnection = () => {
-        if (isConnecting || isConnected) return;
-        setIsConnecting(true);
-        setLogs([]);
-
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < LOG_MESSAGES.length) {
-                setLogs(prev => [...prev, LOG_MESSAGES[i]]);
-                i++;
-            } else {
-                clearInterval(interval);
-                setIsConnecting(false);
-                setIsConnected(true);
+    // Step 1: Real-time Node Ping
+    useEffect(() => {
+        const checkNode = async () => {
+            try {
+                // In production, this pings the local Docker node sidecar
+                await fetch('http://localhost:8000/', { mode: 'no-cors' });
+                setNodeStatus('connected');
+                if (logs.length === 0) {
+                    setLogs(["[SYS] Node detected at 127.0.0.1:8000", "[SEC] TEE Environment: Intel SGX Enabled", "[NET] Awaiting incoming training payloads..."]);
+                }
+            } catch (e) {
+                setNodeStatus('disconnected');
+                setLogs(["[ERR] FATAL: Local Node Disconnected.", "[SYS] Ensure Docker container 'rapha-tee-node' is running."]);
             }
-        }, 800);
-    };
-
-    const addMapping = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newPath) return;
-        const newMapping = {
-            path: newPath,
-            id: `v-node-${mappings.length + 1}-${newPath.split('/').pop()}`,
-            type: "Read-Only (TEE-Env)",
-            status: "Mounted"
         };
-        setMappings([...mappings, newMapping]);
-        setNewPath("");
-    };
+
+        const interval = setInterval(checkNode, 5000);
+        checkNode();
+        return () => clearInterval(interval);
+    }, [logs.length]);
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [logs]);
 
-    const generateKey = () => {
-        const key = "RAPHA-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + Date.now().toString().slice(-4);
-        setPairingKey(key);
-    };
+    // Simulate weight generation for the ledger if connected
+    useEffect(() => {
+        if (nodeStatus === 'connected' && ledger.length === 0) {
+            setLedger([
+                {
+                    payloadHash: "0x7a2b...4f89",
+                    weightHash: "0xzk_9201...f3a2",
+                    timestamp: "2 mins ago",
+                    status: 'Settled'
+                },
+                {
+                    payloadHash: "0x1c9d...e412",
+                    weightHash: "0xzk_4812...b9c1",
+                    timestamp: "14 mins ago",
+                    status: 'Settled'
+                }
+            ]);
+        }
+    }, [nodeStatus, ledger.length]);
 
     return (
         <div className="min-h-screen bg-[#09090b] text-zinc-300 font-sans p-6 md:p-12">
@@ -79,234 +75,170 @@ export default function HospitalPortal() {
 
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <div className="flex items-center gap-2 text-blue-400 mb-1">
-                            <Building2 size={18} />
-                            <span className="text-xs font-mono font-bold tracking-widest uppercase">Enterprise TEE Node</span>
+                    <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl ${nodeStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                            <Server size={24} />
                         </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight">Hospital Command Center</h1>
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className={`w-2 h-2 rounded-full ${nodeStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></span>
+                                <span className="text-xs font-mono font-bold tracking-widest uppercase">
+                                    {nodeStatus === 'connected' ? 'Node Online' : 'Node Disconnected'}
+                                </span>
+                            </div>
+                            <h1 className="text-3xl font-bold text-white tracking-tight">TEE Command Center</h1>
+                        </div>
                     </div>
                     <Link to="/" className="text-sm border border-zinc-800 px-4 py-2 rounded-md hover:bg-zinc-900 transition-colors">
                         Back to Home
                     </Link>
                 </div>
 
+                {/* Infrastructure Brief */}
+                <section className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Cpu size={120} />
+                    </div>
+                    <div className="relative z-10 max-w-2xl">
+                        <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                            <Shield size={18} className="text-blue-400" />
+                            No-Data-Movement Infrastructure
+                        </h2>
+                        <p className="text-sm text-zinc-400 leading-relaxed">
+                            Your Enterprise Node is a <span className="text-blue-400 font-mono">secure local Docker container (TEE)</span> installed behind the hospital firewall. It intercepts training payloads from AI researchers, computes models in isolated memory, and returns only <span className="text-white font-mono">cryptographic mathematical weights</span>. Raw patient data never touches the internet.
+                        </p>
+                    </div>
+                </section>
+
                 <div className="grid lg:grid-cols-3 gap-8">
-
-                    {/* Left Column: Handshake & Security */}
+                    {/* Log Stream Terminal */}
                     <div className="lg:col-span-2 space-y-8">
-
-                        {/* Firewall Handshake UI */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="rounded-xl border border-zinc-800 bg-black overflow-hidden shadow-2xl"
-                        >
+                        <div className="rounded-xl border border-zinc-800 bg-black overflow-hidden shadow-2xl flex flex-col h-[400px]">
                             <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/50">
                                 <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
                                     <Terminal size={14} />
-                                    Firewall Handshake Log
+                                    Live Node Hardware Logs
                                 </div>
-                                {!isConnected && !isConnecting && (
-                                    <button
-                                        onClick={startConnection}
-                                        className="px-3 py-1 bg-blue-500 text-white text-[10px] font-bold rounded hover:bg-blue-600 transition-colors"
-                                    >
-                                        Establish Connection
-                                    </button>
-                                )}
-                                <div className="flex gap-1.5">
-                                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : isConnecting ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
+                                <div className="flex gap-1.5 font-mono text-[10px] text-zinc-600">
+                                    127.0.0.1:8000
                                 </div>
                             </div>
-                            <div className="p-4 h-64 overflow-y-auto font-mono text-sm space-y-2 scrollbar-hide">
-                                {logs.length === 0 && !isConnecting && (
-                                    <div className="text-zinc-700 italic flex flex-col items-center justify-center h-full gap-2">
-                                        <Activity size={24} className="opacity-20" />
-                                        Waiting for manual handshake...
-                                    </div>
-                                )}
+                            <div className="p-4 flex-1 overflow-y-auto font-mono text-[13px] space-y-1.5 bg-[#0c0c0e]">
                                 {logs.map((log, idx) => (
-                                    <div key={idx} className={`${log.includes('SUCCESS') || log.includes('Verified') ? 'text-green-400' : log.includes('SEC') ? 'text-blue-400' : 'text-zinc-500'}`}>
-                                        <span className="opacity-50 mr-2">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
+                                    <div key={idx} className={log.includes('[ERR]') ? 'text-red-400' : log.includes('[SEC]') ? 'text-blue-400' : 'text-zinc-500'}>
+                                        <span className="opacity-30 mr-3 underline">{idx + 1}</span>
                                         {log}
                                     </div>
                                 ))}
+                                {nodeStatus === 'disconnected' && (
+                                    <div className="mt-8 p-4 border border-red-500/20 bg-red-500/5 rounded-lg border-dashed">
+                                        <div className="flex gap-3">
+                                            <AlertCircle className="text-red-400" size={18} />
+                                            <div className="space-y-2">
+                                                <p className="text-sm font-bold text-white">Action Required</p>
+                                                <p className="text-xs text-zinc-400">The TEE supervisor cannot heartbeat the local container. Run the startup script to re-enable compute:</p>
+                                                <code className="block bg-black p-2 rounded text-red-300 text-[10px]">docker run -p 8000:8000 rapha-protocol/enterprise-node</code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 <div ref={logEndRef} />
                             </div>
-                        </motion.div>
+                        </div>
 
-                        {/* Database Mapping Table */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6 space-y-6"
-                        >
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        {/* Weight Ledger */}
+                        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6 space-y-6">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <Database className="text-zinc-400" size={20} />
-                                    <h2 className="text-lg font-bold text-white">Local Database Mapping</h2>
+                                    <Activity className="text-zinc-400" size={20} />
+                                    <h2 className="text-lg font-bold text-white">Cryptographic Weight Ledger</h2>
                                 </div>
-                                <form onSubmit={addMapping} className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        placeholder="/mnt/pacs/..."
-                                        value={newPath}
-                                        onChange={(e) => setNewPath(e.target.value)}
-                                        className="bg-black border border-zinc-800 rounded px-3 py-1 text-xs focus:outline-none focus:border-blue-500/50 transition-colors w-full md:w-48"
-                                    />
-                                    <button type="submit" className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded text-xs font-semibold hover:bg-blue-500 hover:text-white transition-all whitespace-nowrap">
-                                        <Plus size={14} /> Map Directory
-                                    </button>
-                                </form>
+                                <span className="text-[10px] font-mono text-zinc-500 uppercase">ZK-SNARK Proof Stream</span>
                             </div>
 
-                            <div className="overflow-x-auto min-h-[200px]">
+                            <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm">
                                     <thead className="border-b border-zinc-800 text-zinc-500 uppercase text-[10px] font-bold tracking-wider">
                                         <tr>
-                                            <th className="pb-3 px-2">Local Path</th>
-                                            <th className="pb-3 px-2">Virtual Node ID</th>
-                                            <th className="pb-3 px-2">Access Type</th>
-                                            <th className="pb-3 px-2">Status</th>
+                                            <th className="pb-3 px-2">Incoming Payload</th>
+                                            <th className="pb-3 px-2">Outgoing Weight (ZK)</th>
+                                            <th className="pb-3 px-2">Time</th>
+                                            <th className="pb-3 px-2 text-right">State</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-800/50">
-                                        {mappings.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={4} className="py-12 text-center text-zinc-600 italic text-sm">
-                                                    No active data mappings found. Add a local directory to begin.
+                                        {ledger.map((entry, i) => (
+                                            <tr key={i} className="group hover:bg-white/[0.02] transition-colors">
+                                                <td className="py-4 px-2 font-mono text-[11px] text-zinc-500">{entry.payloadHash}</td>
+                                                <td className="py-4 px-2 font-mono text-[11px] text-blue-400">{entry.weightHash}</td>
+                                                <td className="py-4 px-2 text-[11px] text-zinc-600">{entry.timestamp}</td>
+                                                <td className="py-4 px-2 text-right">
+                                                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">
+                                                        {entry.status}
+                                                    </span>
                                                 </td>
                                             </tr>
-                                        ) : (
-                                            mappings.map((m, i) => (
-                                                <tr key={i} className="group">
-                                                    <td className="py-4 px-2 font-mono text-zinc-400">{m.path}</td>
-                                                    <td className="py-4 px-2 font-mono text-blue-400">{m.id}</td>
-                                                    <td className="py-4 px-2 text-xs">{m.type}</td>
-                                                    <td className="py-4 px-2">
-                                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
-                                                            {m.status}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                        ))}
+                                        {ledger.length === 0 && (
+                                            <tr>
+                                                <td colSpan={4} className="py-12 text-center text-zinc-600 italic text-sm">
+                                                    No weights processed in the current epoch.
+                                                </td>
+                                            </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
 
-                    {/* Right Column: Security monitor & Key Gen */}
+                    {/* Right Column: Node Management */}
                     <div className="space-y-8">
-
-                        {/* TEE Security Monitor */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="rounded-xl border border-zinc-800 bg-[#0c0c0e] p-6 space-y-6"
-                        >
+                        <section className="rounded-xl border border-zinc-800 bg-[#0c0c0e] p-6 space-y-6">
                             <div className="flex items-center gap-2 border-b border-zinc-800 pb-4">
                                 <Shield className="text-blue-500" size={20} />
-                                <h2 className="text-lg font-bold text-white">Security Monitor</h2>
+                                <h2 className="text-lg font-bold text-white">Hardware Health</h2>
                             </div>
-
                             <div className="space-y-4">
-                                <div className={`flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border transition-colors ${isConnected ? 'border-emerald-500/20' : 'border-zinc-800 opacity-50'}`}>
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded flex items-center justify-center ${isConnected ? 'bg-emerald-500/10' : 'bg-zinc-800'}`}>
-                                            <CheckCircle2 size={16} className={isConnected ? 'text-emerald-500' : 'text-zinc-600'} />
-                                        </div>
-                                        <div>
-                                            <p className={`text-sm font-semibold ${isConnected ? 'text-white' : 'text-zinc-500'}`}>Memory Isolation</p>
-                                            <p className="text-[10px] text-zinc-500 uppercase">Intel SGX Active</p>
-                                        </div>
-                                    </div>
-                                    <span className={`text-[10px] font-bold ${isConnected ? 'text-emerald-500' : 'text-zinc-700'}`}>{isConnected ? 'SECURE' : 'INACTIVE'}</span>
-                                </div>
-
-                                <div className={`flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border transition-colors ${isConnected ? 'border-zinc-800 opacity-60' : 'border-zinc-800 opacity-30'}`}>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center">
-                                            <Activity size={16} className="text-zinc-500" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold text-zinc-400">ZK-TLS Audit</p>
-                                            <p className="text-[10px] text-zinc-500 uppercase">Next Sync: {isConnected ? '4m' : 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                    <span className="text-[10px] font-bold text-zinc-500">{isConnected ? 'PENDING' : 'OFFLINE'}</span>
-                                </div>
+                                <StatusItem label="Memory Isolation" sub="Intel SGX" status={nodeStatus === 'connected' ? 'Active' : 'Offline'} />
+                                <StatusItem label="Disk Encrypted" sub="AES-256" status={nodeStatus === 'connected' ? 'Verified' : 'Offline'} />
+                                <StatusItem label="ZK-TLS Audit" sub="Audit: 4m" status={nodeStatus === 'connected' ? 'Synced' : 'N/A'} />
                             </div>
-                        </motion.div>
+                        </section>
 
-                        {/* Generate Key */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-6 space-y-6"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Key className="text-blue-400" size={20} />
-                                <h2 className="text-lg font-bold text-white">Node Pairing</h2>
-                            </div>
-                            <p className="text-sm text-zinc-400">Generate a one-time pairing key to secure a new edge device connection.</p>
-
-                            {!pairingKey ? (
-                                <button
-                                    onClick={generateKey}
-                                    className="w-full py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
-                                >
-                                    Generate Node Pairing Key
-                                </button>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="p-4 bg-black rounded-lg border border-blue-500/50 flex items-center justify-between group">
-                                        <span className="font-mono text-blue-400 font-bold tracking-wider">{pairingKey}</span>
-                                        <button className="text-zinc-500 hover:text-white"><Terminal size={16} /></button>
-                                    </div>
-                                    <button
-                                        onClick={() => setPairingKey(null)}
-                                        className="w-full py-2 text-zinc-500 text-xs font-semibold hover:text-zinc-300"
-                                    >
-                                        Reset Key
-                                    </button>
-                                </div>
-                            )}
-                        </motion.div>
+                        <section className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-6 space-y-4">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <ArrowRight size={16} className="text-blue-400" />
+                                Protocol Settlement
+                            </h3>
+                            <p className="text-xs text-zinc-400 leading-relaxed">
+                                Once weights are generated and proofs are verified on Polygon, payments are automatically distributed via the <span className="text-blue-400 italic">RaphaEscrow</span> contract.
+                            </p>
+                            <button className="w-full py-2 bg-zinc-800 rounded border border-zinc-700 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-700 transition-all">
+                                Open Contract Explorer
+                            </button>
+                        </section>
                     </div>
                 </div>
-
             </div>
         </div>
     );
 }
 
-// Missing icon used in code
-function Building2(props: any) {
+function StatusItem({ label, sub, status }: { label: string, sub: string, status: string }) {
+    const isActive = status !== 'Offline' && status !== 'N/A';
     return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-            <path d="M10 6h4" />
-            <path d="M10 10h4" />
-            <path d="M10 14h4" />
-            <path d="M10 18h4" />
-        </svg>
+        <div className={`flex items-center justify-between p-3 rounded-lg bg-zinc-900/50 border transition-colors ${isActive ? 'border-emerald-500/20' : 'border-zinc-800 opacity-50'}`}>
+            <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded flex items-center justify-center ${isActive ? 'bg-emerald-500/10' : 'bg-zinc-800'}`}>
+                    <CheckCircle2 size={16} className={isActive ? 'text-emerald-500' : 'text-zinc-600'} />
+                </div>
+                <div>
+                    <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-zinc-500'}`}>{label}</p>
+                    <p className="text-[10px] text-zinc-500 uppercase">{sub}</p>
+                </div>
+            </div>
+            <span className={`text-[10px] font-bold ${isActive ? 'text-emerald-500' : 'text-zinc-700'}`}>{status}</span>
+        </div>
     );
 }

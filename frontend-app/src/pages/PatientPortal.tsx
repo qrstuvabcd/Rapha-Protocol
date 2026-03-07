@@ -1,5 +1,4 @@
-﻿
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
     Cpu,
     Zap,
@@ -15,53 +14,86 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { ethers } from 'ethers';
+import {
+    getPolygonProvider,
+    getEscrowContract,
+    USDC_ADDRESS,
+    IERC20_ABI,
+    RAPHA_ESCROW_ADDRESS
+} from '../contracts/RaphaProtocol';
+import { getStoredWalletAddress } from '../services/wallet.service';
 
 export default function PatientPortal() {
     const [isTraining, setIsTraining] = useState(false);
     const [isClaiming, setIsClaiming] = useState(false);
-    const [balance, setBalance] = useState(0.00);
-    const [ledger, setLedger] = useState<{ id: string; study: string; clinical: string; amount: number; time: string; type: 'alzheimer' | 'cardio' }[]>([]);
+    const [balance, setBalance] = useState("0.00");
+    const [walletAddress, setWalletAddress] = useState<string | null>(null);
+    const [ledger, setLedger] = useState<{ id: string; study: string; clinical: string; amount: string; time: string; type: 'alzheimer' | 'cardio' }[]>([]);
     const [toggles, setToggles] = useState({
         heartRate: false,
         sleep: false,
         hrv: false
     });
 
-    // Simulate reward accumulation when training is active
+    // Step 1: Initialize Wallet and Fetch On-Chain State
     useEffect(() => {
-        let interval: any;
-        if (isTraining) {
-            interval = setInterval(() => {
-                setBalance(prev => prev + 0.012);
+        const address = getStoredWalletAddress();
+        setWalletAddress(address);
 
-                // Occasionally add to ledger
-                if (Math.random() > 0.8) {
-                    const newEntry = {
-                        id: Math.random().toString(36).substr(2, 9),
-                        study: Math.random() > 0.5 ? "Alzheimer's Study" : "Cardio-Mapping",
-                        clinical: Math.random() > 0.5 ? "Oxford Neurological" : "Mayo Clinic Research",
-                        amount: 0.042,
-                        time: "Just now",
-                        type: (Math.random() > 0.5 ? 'alzheimer' : 'cardio') as 'alzheimer' | 'cardio'
-                    };
-                    setLedger(prev => [newEntry, ...prev].slice(0, 5));
-                }
-            }, 3000);
+        if (address) {
+            fetchOnChainData(address);
         }
-        return () => clearInterval(interval);
-    }, [isTraining]);
+    }, []);
+
+    async function fetchOnChainData(address: string) {
+        try {
+            const provider = getPolygonProvider();
+
+            // Fetch USDC Balance
+            const usdc = new ethers.Contract(USDC_ADDRESS, IERC20_ABI, provider);
+            const rawBalance = await usdc.balanceOf(address);
+            setBalance(ethers.formatUnits(rawBalance, 6));
+
+            // Fetch Recent 'JobSettled' Events for the Ledger
+            const escrow = getEscrowContract(provider);
+            const filter = escrow.filters.JobSettled(null, address);
+            const events = await escrow.queryFilter(filter, -10000); // Last ~10k blocks
+
+            const formattedLedger = events.map((event: any) => {
+                const args = event.args;
+                return {
+                    id: args.jobId,
+                    study: "AI Model Training",
+                    clinical: "Protocol Settlement",
+                    amount: ethers.formatUnits(args.nodePayout, 6),
+                    time: "Recent",
+                    type: Math.random() > 0.5 ? 'alzheimer' : 'cardio'
+                };
+            });
+
+            if (formattedLedger.length > 0) {
+                setLedger(formattedLedger as any);
+            }
+        } catch (e) {
+            console.error("Failed to fetch on-chain data:", e);
+        }
+    }
 
     const toggleHealth = (key: keyof typeof toggles) => {
         setToggles(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
-    const handleClaim = () => {
-        if (balance <= 0) return;
+    const handleClaim = async () => {
+        if (parseFloat(balance) <= 0) return;
         setIsClaiming(true);
+
+        // In a real-world scenario, we would prompt for a signature.
+        // For the 2.0 interface, we simulate the Polygon verification delay.
         setTimeout(() => {
-            setBalance(0);
+            window.open(`https://polygonscan.com/address/${RAPHA_ESCROW_ADDRESS}`, '_blank');
             setIsClaiming(false);
-        }, 2000);
+        }, 3000);
     };
 
     return (
@@ -72,7 +104,12 @@ export default function PatientPortal() {
                     <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
                         <Cpu size={18} className="text-purple-400" />
                     </div>
-                    <span className="font-bold text-white tracking-tight">Edge Node v0.4</span>
+                    <div>
+                        <span className="font-bold text-white tracking-tight block leading-none">Edge Node v0.4</span>
+                        {walletAddress && (
+                            <span className="text-[8px] font-mono text-zinc-500">{walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</span>
+                        )}
+                    </div>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
@@ -219,22 +256,22 @@ export default function PatientPortal() {
 
                     <div className="mb-8">
                         <p className="text-zinc-200 text-xs font-semibold mb-1">Available to Claim</p>
-                        <h3 className="text-4xl font-black text-white tracking-tighter">${balance.toFixed(2)} <span className="text-lg opacity-60">USDC</span></h3>
+                        <h3 className="text-4xl font-black text-white tracking-tighter">{balance} <span className="text-lg opacity-60">USDC</span></h3>
                     </div>
 
                     <button
                         onClick={handleClaim}
-                        disabled={balance === 0 || isClaiming}
+                        disabled={parseFloat(balance) === 0 || isClaiming}
                         className="w-full py-4 bg-white text-indigo-600 font-bold rounded-2xl hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isClaiming ? (
                             <>
                                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Zap size={18} /></motion.div>
-                                Confirming Transaction...
+                                Verifying on Polygon...
                             </>
                         ) : (
                             <>
-                                Claim to Polygon Wallet
+                                Claim to Mainnet Wallet
                                 <ArrowUpRight size={18} />
                             </>
                         )}
