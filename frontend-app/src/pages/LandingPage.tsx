@@ -1,4 +1,4 @@
-﻿import { Terminal, Shield, Cpu, Lock, Network, Code, Server, ExternalLink, ChevronRight, Zap, CheckCircle2, Copy } from 'lucide-react';
+﻿import { Terminal, Shield, Cpu, Lock, Network, Code, Server, ExternalLink, ChevronRight, Zap, CheckCircle2, Copy, Building2, HeartPulse } from 'lucide-react';
 import { useState } from 'react';
 
 export function LandingPage() {
@@ -263,7 +263,71 @@ export function LandingPage() {
             </section>
 
             {/* ═══════════════════════════════════════════════════ */}
-            {/* SECTION 4 — QUICKSTART (Stripe-style Docs)         */}
+            {/* SECTION 4 — THE RAPHA ECOSYSTEM                    */}
+            {/* ═══════════════════════════════════════════════════ */}
+            <section className="border-t border-zinc-800/50 bg-[#0c0c0e] relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 py-28 relative z-10">
+                    <div className="text-center max-w-3xl mx-auto mb-20">
+                        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 text-xs font-mono uppercase tracking-widest mb-6">
+                            <Network className="w-3 h-3" />
+                            <span>Network</span>
+                        </div>
+                        <h2 className="text-4xl font-bold text-white mb-6 tracking-tight">
+                            The Rapha Ecosystem
+                        </h2>
+                        <p className="text-zinc-400 text-lg leading-relaxed">
+                            Connecting the world's largest supply of proprietary health data with the most advanced AI researchers.
+                        </p>
+                    </div>
+
+                    <div className="grid lg:grid-cols-3 gap-6">
+                        {/* Column 1: AI Researchers */}
+                        <div className="p-8 rounded-2xl bg-[#09090b] border border-zinc-800 flex flex-col h-full group hover:border-cyan-500/30 transition-colors">
+                            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-6">
+                                <Terminal className="w-6 h-6" />
+                            </div>
+                            <div className="text-xs font-mono text-cyan-400 mb-2 uppercase tracking-widest flex-shrink-0">The Demand</div>
+                            <h3 className="text-xl font-bold text-white mb-3">AI Researchers</h3>
+                            <h4 className="text-sm font-semibold text-zinc-300 mb-4">Access Global Data</h4>
+                            <p className="text-zinc-400 text-sm leading-relaxed flex-grow">
+                                Stop training on synthetic garbage. Dispatch your models into the world's largest decentralized network of proprietary EHR and telemetry data. Pay per compute epoch using USDC.
+                            </p>
+                        </div>
+
+                        {/* Column 2: Hospitals & Enterprise */}
+                        <div className="p-8 rounded-2xl bg-[#09090b] border border-zinc-800 flex flex-col h-full group hover:border-blue-500/30 transition-colors">
+                            <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-6">
+                                <Building2 className="w-6 h-6" />
+                            </div>
+                            <div className="text-xs font-mono text-blue-400 mb-2 uppercase tracking-widest flex-shrink-0">The Supply</div>
+                            <h3 className="text-xl font-bold text-white mb-3">Hospitals & Enterprise</h3>
+                            <h4 className="text-sm font-semibold text-zinc-300 mb-4">Monetize Siloed Data</h4>
+                            <p className="text-zinc-400 text-sm leading-relaxed flex-grow">
+                                Deploy the rapha-enterprise-node Docker container behind your firewall. Allow AI labs to compute on your data without ever exposing raw patient files. Zero HIPAA liability. Instant on-chain settlement.
+                            </p>
+                        </div>
+
+                        {/* Column 3: Patients & Keepers */}
+                        <div className="p-8 rounded-2xl bg-[#09090b] border border-zinc-800 flex flex-col h-full group hover:border-purple-500/30 transition-colors">
+                            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-6">
+                                <HeartPulse className="w-6 h-6" />
+                            </div>
+                            <div className="text-xs font-mono text-purple-400 mb-2 uppercase tracking-widest flex-shrink-0">The Owners</div>
+                            <h3 className="text-xl font-bold text-white mb-3">Patients & Keepers</h3>
+                            <h4 className="text-sm font-semibold text-zinc-300 mb-4">Cryptographic Consent</h4>
+                            <p className="text-zinc-400 text-sm leading-relaxed mb-6 flex-grow">
+                                You own your health data. Use our Patient Portal to cryptographically sign compute-consent transactions. Earn token bounties every time your anonymized data is included in an AI training epoch.
+                            </p>
+                            <a href="/legacy" className="inline-flex items-center text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors mt-auto group-hover:translate-x-1 duration-200">
+                                Enter Patient Portal <ChevronRight className="w-3 h-3 ml-1" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════════════ */}
+            {/* SECTION 5 — QUICKSTART (Stripe-style Docs)         */}
             {/* ═══════════════════════════════════════════════════ */}
             <section className="border-t border-zinc-800/50">
                 <div className="max-w-7xl mx-auto px-6 py-28">
@@ -407,7 +471,7 @@ export function LandingPage() {
             </section>
 
             {/* ═══════════════════════════════════════════════════ */}
-            {/* SECTION 5 — TRUST & FOOTER BAR                     */}
+            {/* SECTION 6 — TRUST & FOOTER BAR                     */}
             {/* ═══════════════════════════════════════════════════ */}
             <footer className="border-t border-zinc-800/50 bg-[#09090b]">
                 {/* Backed-by Banner */}
