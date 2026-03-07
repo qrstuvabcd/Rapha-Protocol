@@ -1,12 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
-import { Rapha2Landing, PatientPortal, HospitalPortal, AIResearchPortal, Whitepaper, LegacyLandingPage } from './pages'
-import { VerifierPortal } from './pages/VerifierPortal'
-import { KeeperApplication } from './pages/KeeperApplication'
-import { KeeperDashboard } from './pages/KeeperDashboard'
-import { PrivacyPolicy } from './pages/PrivacyPolicy'
-import { TermsPage } from './pages/TermsPage'
-import { DataPoolDemo } from './components/marketplace/DataPoolDemo'
+import { Rapha2Landing, LegacyLandingPage, Whitepaper } from './pages'
 import { JsonLd } from './components/SEO/JsonLd'
 import './App.css'
 
@@ -53,33 +47,21 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <JsonLd />
       <ErrorBoundary>
         <Routes>
           {/* Rapha 2.0 — New Root */}
           <Route path="/" element={<Rapha2Landing />} />
 
-          {/* Legacy Archive — Investors can see v1.0 shipping history */}
+          {/* Legacy Archive */}
           <Route path="/legacy" element={<LegacyLandingPage />} />
-          <Route path="/v1" element={<LegacyLandingPage />} />
 
-          {/* Existing Portals */}
-          <Route path="/patient" element={<PatientPortal />} />
-          <Route path="/hospital" element={<HospitalPortal />} />
-          <Route path="/ai-research" element={<AIResearchPortal />} />
-          <Route path="/research" element={<AIResearchPortal />} />
-          <Route path="/pharma" element={<AIResearchPortal />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsPage />} />
+          {/* Whitepaper Pivot */}
           <Route path="/whitepaper" element={<Whitepaper />} />
-          <Route path="/verifier" element={<VerifierPortal />} />
-          <Route path="/keeper-apply" element={<KeeperApplication />} />
-          <Route path="/keeper" element={<KeeperDashboard />} />
-          <Route path="/demo" element={<DataPoolDemo />} />
         </Routes>
       </ErrorBoundary>
-    </BrowserRouter>
+    </>
   )
 }
 
