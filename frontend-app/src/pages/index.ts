@@ -1,5 +1,5 @@
-export { LandingPage } from './LandingPage'
-export { Rapha2Landing } from './Rapha2Landing'
+export { default as LandingPage } from './LandingPage'
+export { default as Rapha2Landing } from './Rapha2Landing'
 export { PatientPortal } from './PatientPortal'
 export { HospitalPortal } from './HospitalPortal'
 export { AIResearchPortal } from './AIResearchPortal'

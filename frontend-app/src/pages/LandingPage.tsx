@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿
 import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
 
 export default function Rapha2Landing() {
