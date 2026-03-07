@@ -1,58 +1,98 @@
 ﻿import React from 'react';
 import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function LandingPage() {
+    // Animation Variants
+    const staggerContainer = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.15 }
+        }
+    };
+
+    const fadeInUp = {
+        hidden: { opacity: 0, y: 30 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
+    };
+
+    const fadeInRight = {
+        hidden: { opacity: 0, x: 30 },
+        show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
+    };
+
+    const scaleIn = {
+        hidden: { opacity: 0, scale: 0.95 },
+        show: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100, damping: 20 } }
+    };
+
     return (
         <div className="min-h-screen bg-[#09090b] text-zinc-300 font-sans overflow-x-hidden">
 
             {/* NAVIGATION BAR */}
-            <nav className="border-b border-zinc-800 bg-[#09090b]/90 backdrop-blur-md fixed top-0 w-full z-50">
+            <motion.nav
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                className="border-b border-zinc-800 bg-[#09090b]/90 backdrop-blur-md fixed top-0 w-full z-50"
+            >
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" style={{ boxShadow: '0 0 10px rgba(6,182,212,0.6)' }}></div>
+                        <div className="w-3 h-3 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.6)] animate-pulse"></div>
                         <span className="font-bold text-white text-xl tracking-tight">Rapha Protocol</span>
                     </div>
                     <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
-                        <a href="/whitepaper" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Code size={16} /> Docs</a>
-                        <a href="https://pypi.org/project/rapha-ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Terminal size={16} /> PyPI SDK</a>
-                        <a href="/legacy" className="text-zinc-500 hover:text-zinc-300 transition-colors border border-zinc-700 px-4 py-1.5 rounded-md hover:border-zinc-500 hover:bg-zinc-900">
+                        <motion.a whileHover={{ scale: 1.05 }} href="/whitepaper" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Code size={16} /> Docs</motion.a>
+                        <motion.a whileHover={{ scale: 1.05 }} href="https://pypi.org/project/rapha-ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2"><Terminal size={16} /> PyPI SDK</motion.a>
+                        <motion.a whileHover={{ scale: 1.05 }} href="/legacy" className="text-zinc-500 hover:text-zinc-300 transition-colors border border-zinc-700 px-4 py-1.5 rounded-md hover:border-zinc-500 hover:bg-zinc-900">
                             v1.0 (Legacy)
-                        </a>
+                        </motion.a>
                     </div>
                 </div>
-            </nav>
+            </motion.nav>
 
             {/* HERO SECTION */}
             <main className="max-w-7xl mx-auto px-6 pt-40 pb-24 grid lg:grid-cols-2 gap-16 items-center">
-                <div className="space-y-8 z-10">
-                    <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-500 text-xs font-mono">
+                <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="show"
+                    className="space-y-8 z-10"
+                >
+                    <motion.div variants={fadeInUp} className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-500 text-xs font-mono">
                         <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
                         <span>Rapha-AI v0.1.0 is Live on Polygon Mainnet</span>
-                    </div>
+                    </motion.div>
 
-                    <h1 className="text-5xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
+                    <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
                         Train AI on <br />Clinical Data.<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">
                             Without Moving It.
                         </span>
-                    </h1>
+                    </motion.h1>
 
-                    <p className="text-lg text-zinc-400 leading-relaxed max-w-xl">
+                    <motion.p variants={fadeInUp} className="text-lg text-zinc-400 leading-relaxed max-w-xl">
                         The decentralized Compute-to-Data API. Route AI training loops directly into secure hospital firewalls using ZK-TLS cryptography. Zero data leaves the building. Zero HIPAA liability.
-                    </p>
+                    </motion.p>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                        <button className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition-colors flex justify-center items-center gap-2">
+                    <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto px-8 py-3.5 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition-colors flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
                             Get API Keys
-                        </button>
-                        <a href="/whitepaper" className="w-full sm:w-auto px-8 py-3.5 bg-zinc-900 text-white border border-zinc-700 font-semibold rounded-lg hover:bg-zinc-800 hover:border-zinc-600 transition-colors flex justify-center items-center gap-2">
+                        </motion.button>
+                        <motion.a whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} href="/whitepaper" className="w-full sm:w-auto px-8 py-3.5 bg-zinc-900 text-white border border-zinc-700 font-semibold rounded-lg hover:bg-zinc-800 hover:border-zinc-600 transition-colors flex justify-center items-center gap-2">
                             <Code size={18} /> Read the Docs
-                        </a>
-                    </div>
-                </div>
+                        </motion.a>
+                    </motion.div>
+                </motion.div>
 
                 {/* Hero Terminal UI */}
-                <div className="relative z-10">
+                <motion.div
+                    initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.3 }}
+                    className="relative z-10"
+                >
                     <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl blur opacity-20 animate-pulse"></div>
                     <div className="relative rounded-xl bg-[#0c0c0e] border border-zinc-800 shadow-2xl overflow-hidden font-mono text-sm">
                         <div className="flex items-center px-4 py-3 bg-[#18181b] border-b border-zinc-800">
@@ -66,128 +106,173 @@ export default function LandingPage() {
                             </div>
                         </div>
                         <div className="p-6 space-y-5 text-zinc-300 overflow-x-auto">
-                            <div>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
                                 <span className="text-cyan-500">$</span> pip install rapha-ai<br />
-                                <span className="text-zinc-500">Successfully installed rapha-ai-0.1.0</span>
-                            </div>
-                            <div>
+                                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="text-zinc-500">Successfully installed rapha-ai-0.1.0</motion.span>
+                            </motion.div>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}>
                                 <span className="text-cyan-500">$</span> python train_model.py
-                            </div>
-                            <div className="text-zinc-400 space-y-1.5 border-l-2 border-zinc-700 pl-4 ml-1">
-                                <p>&gt; Initializing RaphaClient (Mainnet)...</p>
-                                <p>&gt; Packaging Llama-3 weights (8B)...</p>
-                                <p className="text-blue-400">&gt; Dispatching compute payload to Node: Tokyo_Oncology_01</p>
-                                <p className="text-yellow-400">&gt; [TEE] Epoch 1/5 running locally on HIPAA data...</p>
-                                <p className="text-yellow-400">&gt; [TEE] Epoch 5/5 completed. Loss: 0.214</p>
-                                <p>&gt; Receiving updated mathematical weights...</p>
-                                <p className="text-green-400 font-semibold flex items-center gap-2">
+                            </motion.div>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="text-zinc-400 space-y-1.5 border-l-2 border-zinc-700 pl-4 ml-1">
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.8 }}>&gt; Initializing RaphaClient (Mainnet)...</motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.1 }}>&gt; Packaging Llama-3 weights (8B)...</motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.4 }} className="text-blue-400">&gt; Dispatching compute payload to Node: Tokyo_Oncology_01</motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 4.0 }} className="text-yellow-400">&gt; [TEE] Epoch 1/5 running locally on HIPAA data...</motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 4.8 }} className="text-yellow-400">&gt; [TEE] Epoch 5/5 completed. Loss: 0.214</motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 5.2 }}>&gt; Receiving updated mathematical weights...</motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 5.8 }} className="text-green-400 font-semibold flex items-center gap-2">
                                     <Shield size={14} /> SUCCESS: ZK-Proof verified. Polygon Contract Settled.
-                                </p>
-                            </div>
-                            <div className="flex items-center">
+                                </motion.p>
+                            </motion.div>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 6 }} className="flex items-center">
                                 <span className="text-cyan-500">$</span> <span className="ml-2 w-2 h-4 bg-zinc-400 animate-pulse inline-block"></span>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </main>
 
             {/* THE RAPHA ECOSYSTEM */}
             <section className="border-t border-zinc-800 bg-[#0c0c0e] py-24 relative">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16 space-y-4">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white">The Rapha Ecosystem</h2>
-                        <p className="text-zinc-400 max-w-2xl mx-auto">A unified, decentralized marketplace connecting the demand for AI compute with the supply of high-fidelity clinical data.</p>
-                    </div>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={staggerContainer}
+                        className="text-center mb-16 space-y-4"
+                    >
+                        <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-white">The Rapha Ecosystem</motion.h2>
+                        <motion.p variants={fadeInUp} className="text-zinc-400 max-w-2xl mx-auto">A unified, decentralized marketplace connecting the demand for AI compute with the supply of high-fidelity clinical data.</motion.p>
+                    </motion.div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <motion.div
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={staggerContainer}
+                        className="grid md:grid-cols-3 gap-8"
+                    >
                         {/* AI Researchers */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-cyan-500 transition-colors">
-                            <div>
-                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center mb-6">
+                        <motion.div variants={fadeInUp} whileHover={{ y: -5 }} className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-cyan-500 transition-colors shadow-lg hover:shadow-cyan-500/10 object-contain group relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 via-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="relative z-10">
+                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <Terminal className="text-cyan-500" />
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">AI Researchers</h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">Stop training on synthetic garbage. Dispatch your models into the world's largest decentralized network of proprietary EHR and telemetry data.</p>
                             </div>
-                            <div className="pt-4 border-t border-zinc-800 mt-auto">
+                            <div className="pt-4 border-t border-zinc-800 mt-auto relative z-10">
                                 <a href="https://pypi.org/project/rapha-ai" className="inline-flex items-center text-sm font-semibold text-cyan-500 hover:text-cyan-400 transition-colors">
                                     View PyPI Documentation →
                                 </a>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Hospitals */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-cyan-500 transition-colors">
-                            <div>
-                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center mb-6">
+                        <motion.div variants={fadeInUp} whileHover={{ y: -5 }} className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-blue-500 transition-colors shadow-lg hover:shadow-blue-500/10 group relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="relative z-10">
+                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <Building2 className="text-blue-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">Hospitals &amp; Enterprise</h3>
-                                <p className="text-zinc-400 text-sm leading-relaxed mb-6">Deploy the <code className="text-blue-300 bg-blue-900 px-1 py-0.5 rounded">rapha-node</code> container behind your firewall. Monetize siloed data without ever exposing raw patient files. Zero HIPAA liability.</p>
+                                <p className="text-zinc-400 text-sm leading-relaxed mb-6">Deploy the <code className="text-blue-300 bg-blue-900/30 px-1 py-0.5 rounded border border-blue-800">rapha-node</code> container behind your firewall. Monetize siloed data without ever exposing raw patient files. Zero HIPAA liability.</p>
                             </div>
-                            <div className="pt-4 border-t border-zinc-800 mt-auto space-y-3">
-                                <a href="/hospital" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            <div className="pt-4 border-t border-zinc-800 mt-auto space-y-3 relative z-10">
+                                <a href="/hospital" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-500/10 text-blue-400 border border-blue-500/50 font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition-all text-sm group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                                     <Building2 size={16} /> Access Hospital Portal
                                 </a>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Patients */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-cyan-500 transition-colors">
-                            <div>
-                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center mb-6">
+                        <motion.div variants={fadeInUp} whileHover={{ y: -5 }} className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-purple-500 transition-colors shadow-lg hover:shadow-purple-500/10 group relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="relative z-10">
+                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <HeartPulse className="text-purple-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">Patients &amp; Keepers</h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">You own your health data. Cryptographically sign compute-consent transactions and earn token bounties when your data is utilized.</p>
                             </div>
-                            <div className="pt-4 border-t border-zinc-800 mt-auto space-y-3">
-                                <a href="/patient" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors text-sm">
+                            <div className="pt-4 border-t border-zinc-800 mt-auto space-y-3 relative z-10">
+                                <a href="/patient" className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-purple-500/10 text-purple-400 border border-purple-500/50 font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-all text-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]">
                                     <HeartPulse size={16} /> Access Patient Portal
                                 </a>
                             </div>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </section>
 
             {/* THE ARCHITECTURE GRID */}
             <section className="border-t border-zinc-800 bg-[#09090b] py-24 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16 space-y-4">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white">The Data Wall is Broken.</h2>
-                        <p className="text-zinc-400 max-w-2xl mx-auto">Uploading patient records to the cloud is a legal dead-end. We inverted the architecture: send the compute to the data.</p>
-                    </div>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={staggerContainer}
+                        className="text-center mb-16 space-y-4"
+                    >
+                        <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-white">The Data Wall is Broken.</motion.h2>
+                        <motion.p variants={fadeInUp} className="text-zinc-400 max-w-2xl mx-auto">Uploading patient records to the cloud is a legal dead-end. We inverted the architecture: send the compute to the data.</motion.p>
+                    </motion.div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <Server className="text-cyan-500 w-10 h-10" />
+                    <motion.div
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={staggerContainer}
+                        className="grid md:grid-cols-3 gap-8"
+                    >
+                        <motion.div variants={fadeInUp} className="flex flex-col items-center text-center space-y-4 group">
+                            <div className="p-4 rounded-full bg-cyan-500/5 border border-cyan-500/20 group-hover:bg-cyan-500/10 transition-colors">
+                                <Server className="text-cyan-500 w-10 h-10 group-hover:scale-110 transition-transform" />
+                            </div>
                             <h3 className="text-lg font-bold text-white">Local TEE Execution</h3>
                             <p className="text-zinc-400 text-sm">Models run securely inside the hospital's Trusted Execution Environment.</p>
-                        </div>
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <Shield className="text-blue-400 w-10 h-10" />
+                        </motion.div>
+                        <motion.div variants={fadeInUp} className="flex flex-col items-center text-center space-y-4 group">
+                            <div className="p-4 rounded-full bg-blue-500/5 border border-blue-500/20 group-hover:bg-blue-500/10 transition-colors">
+                                <Shield className="text-blue-400 w-10 h-10 group-hover:scale-110 transition-transform" />
+                            </div>
                             <h3 className="text-lg font-bold text-white">ZK-TLS Verification</h3>
                             <p className="text-zinc-400 text-sm">We generate a zero-knowledge proof guaranteeing data authenticity.</p>
-                        </div>
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <Network className="text-purple-400 w-10 h-10" />
+                        </motion.div>
+                        <motion.div variants={fadeInUp} className="flex flex-col items-center text-center space-y-4 group">
+                            <div className="p-4 rounded-full bg-purple-500/5 border border-purple-500/20 group-hover:bg-purple-500/10 transition-colors">
+                                <Network className="text-purple-400 w-10 h-10 group-hover:scale-110 transition-transform" />
+                            </div>
                             <h3 className="text-lg font-bold text-white">Polygon Settlement</h3>
                             <p className="text-zinc-400 text-sm">Escrow smart contracts release USDC bounties upon ZK verification.</p>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </section>
 
             {/* DEVELOPER QUICKSTART */}
             <section className="py-24 max-w-5xl mx-auto px-6 border-t border-zinc-800">
-                <div className="flex items-center gap-3 mb-10">
+                <motion.div
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, margin: "-100px" }}
+                    variants={fadeInUp}
+                    className="flex items-center gap-3 mb-10"
+                >
                     <Cpu className="text-cyan-500" />
                     <h2 className="text-3xl font-bold text-white">Developer Quickstart</h2>
-                </div>
+                </motion.div>
 
-                <div className="rounded-xl border border-zinc-800 bg-[#0c0c0e] overflow-hidden">
+                <motion.div
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, margin: "-100px" }}
+                    variants={scaleIn}
+                    className="rounded-xl border border-zinc-800 bg-[#0c0c0e] overflow-hidden shadow-2xl"
+                >
                     <div className="flex border-b border-zinc-800 bg-[#121214] px-4 py-3 gap-6 text-sm font-medium">
                         <span className="text-cyan-500 border-b-2 border-cyan-500 pb-3 -mb-3">Python SDK</span>
                     </div>
@@ -215,13 +300,13 @@ export default function LandingPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </section>
 
             {/* FOOTER */}
             <footer className="border-t border-zinc-800 py-12 text-center text-sm text-zinc-500 bg-[#09090b]">
                 <div className="flex justify-center items-center gap-2 mb-4">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                     <span>All Network Systems Operational</span>
                 </div>
                 <p>© 2026 Rapha Protocol Ltd.</p>
