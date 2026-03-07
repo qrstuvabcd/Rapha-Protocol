@@ -1,7 +1,6 @@
-﻿
-import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
+﻿import { Terminal, Shield, Cpu, Lock, Network, Code, Server, Building2, HeartPulse } from 'lucide-react';
 
-export default function Rapha2Landing() {
+export default function LandingPage() {
     return (
         <div className="min-h-screen bg-[#09090b] text-zinc-300 font-sans selection:bg-cyan-900 selection:text-cyan-50 overflow-x-hidden">
 
@@ -93,7 +92,7 @@ export default function Rapha2Landing() {
                 </div>
             </main>
 
-            {/* 3. THE RAPHA ECOSYSTEM (NEW SECTION) */}
+            {/* 3. THE RAPHA ECOSYSTEM (Fixed CTAs) */}
             <section className="border-t border-zinc-800/50 bg-[#0c0c0e] py-24 relative">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16 space-y-4">
@@ -103,25 +102,39 @@ export default function Rapha2Landing() {
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {/* AI Researchers */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 hover:border-cyan-500/50 transition-colors">
-                            <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6">
-                                <Terminal className="text-cyan-400" />
+                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-cyan-500/50 transition-colors">
+                            <div>
+                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6">
+                                    <Terminal className="text-cyan-400" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-3">AI Researchers</h3>
+                                <p className="text-zinc-400 text-sm leading-relaxed mb-6">Stop training on synthetic garbage. Dispatch your models into the world's largest decentralized network of proprietary EHR and telemetry data.</p>
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">AI Researchers</h3>
-                            <p className="text-zinc-400 text-sm leading-relaxed mb-6">Stop training on synthetic garbage. Dispatch your models into the world's largest decentralized network of proprietary EHR and telemetry data.</p>
+                            <div className="pt-4 border-t border-zinc-800/50 mt-auto">
+                                <a href="https://pypi.org/project/rapha-ai" className="inline-flex items-center text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
+                                    View PyPI Documentation →
+                                </a>
+                            </div>
                         </div>
 
                         {/* Hospitals */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 hover:border-blue-500/50 transition-colors">
-                            <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6">
-                                <Building2 className="text-blue-400" />
+                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-blue-500/50 transition-colors">
+                            <div>
+                                <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6">
+                                    <Building2 className="text-blue-400" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-3">Hospitals & Enterprise</h3>
+                                <p className="text-zinc-400 text-sm leading-relaxed mb-6">Deploy the <code className="text-blue-300 bg-blue-900/30 px-1 py-0.5 rounded">rapha-node</code> container behind your firewall. Monetize siloed data without ever exposing raw patient files. Zero HIPAA liability.</p>
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">Hospitals & Enterprise</h3>
-                            <p className="text-zinc-400 text-sm leading-relaxed mb-6">Deploy the <code className="text-blue-300 bg-blue-900/30 px-1 py-0.5 rounded">rapha-node</code> container behind your firewall. Monetize siloed data without ever exposing raw patient files. Zero HIPAA liability.</p>
+                            <div className="pt-4 border-t border-zinc-800/50 mt-auto">
+                                <a href="/hospital" className="inline-flex items-center text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                                    Access Enterprise Portal →
+                                </a>
+                            </div>
                         </div>
 
                         {/* Patients */}
-                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 hover:border-purple-500/50 transition-colors flex flex-col justify-between">
+                        <div className="p-8 rounded-2xl bg-[#121214] border border-zinc-800 flex flex-col justify-between hover:border-purple-500/50 transition-colors">
                             <div>
                                 <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6">
                                     <HeartPulse className="text-purple-400" />
@@ -129,9 +142,11 @@ export default function Rapha2Landing() {
                                 <h3 className="text-xl font-bold text-white mb-3">Patients & Keepers</h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed mb-6">You own your health data. Cryptographically sign compute-consent transactions and earn token bounties when your data is utilized.</p>
                             </div>
-                            <a href="/legacy" className="inline-flex items-center text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors">
-                                Enter Patient Portal →
-                            </a>
+                            <div className="pt-4 border-t border-zinc-800/50 mt-auto">
+                                <a href="/legacy" className="inline-flex items-center text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors">
+                                    Enter Patient Portal →
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
