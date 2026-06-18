@@ -1,0 +1,7 @@
+{
+  "network": "polygon",
+  "raphaToken": "0xB534d54a7c2cb2925926E0ee24654979167E61aA",
+  "usdc": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+  "factory": "0xD12F32169d9a32789a36A53c6F1436D28E8d03Bd",
+  "deployer": "0xc8F8e014d202D8D1377F4DDBA9eed23BF16180D3"
+}

@@ -1,0 +1,23 @@
+{
+    "name": "rapha-contracts",
+    "version": "1.0.0",
+    "scripts": {
+        "compile": "npx hardhat compile",
+        "test": "npx hardhat test",
+        "deploy:mainnet": "npx hardhat run scripts/deploy-mainnet.js --network polygon",
+        "deploy:mainnet:bounty": "npx hardhat run scripts/deploy-mainnet-bounty.js --network polygon",
+        "deploy:mainnet:clearing-vault": "npx hardhat run scripts/deploy-mainnet-clearing-vault.js --network polygon",
+        "deploy:mainnet:tollbooth": "npx hardhat run scripts/deploy-mainnet-tollbooth.js --network polygon",
+        "deploy:mainnet:resume-factory": "npx hardhat run scripts/resume-mainnet-factory.js --network polygon",
+        "mainnet:mint-node": "npx hardhat run scripts/mint-mainnet-node.js --network polygon",
+        "mainnet:settle-job": "npx hardhat run scripts/settle-mainnet-job.js --network polygon"
+    },
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+        "hardhat": "^2.19.0"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "^5.0.0",
+        "dotenv": "^16.3.1"
+    }
+}

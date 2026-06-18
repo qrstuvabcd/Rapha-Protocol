@@ -1,0 +1,49 @@
+name: Edge Core OS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/edge-core-os.yml"
+      - "nodes/rapha-edge-core-os/**"
+  pull_request:
+    paths:
+      - ".github/workflows/edge-core-os.yml"
+      - "nodes/rapha-edge-core-os/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Rust, Go, and C verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache-dependency-path: nodes/rapha-edge-core-os/compliance/go.sum
+
+      - name: Show compiler versions
+        run: |
+          rustc --version
+          cargo --version
+          go version
+          cc --version
+          make --version
+
+      - name: Enclave production guard
+        run: make c-production-guard
+        working-directory: nodes/rapha-edge-core-os
+
+      - name: Verify Edge Core OS
+        run: make verify
+        working-directory: nodes/rapha-edge-core-os

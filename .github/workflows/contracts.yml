@@ -1,0 +1,53 @@
+name: Contracts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/contracts.yml"
+      - "contracts/package.json"
+      - "contracts/package-lock.json"
+      - "contracts/hardhat.config.js"
+      - "contracts/src/**"
+      - "contracts/scripts/**"
+      - "contracts/test/**"
+  pull_request:
+    paths:
+      - ".github/workflows/contracts.yml"
+      - "contracts/package.json"
+      - "contracts/package-lock.json"
+      - "contracts/hardhat.config.js"
+      - "contracts/src/**"
+      - "contracts/scripts/**"
+      - "contracts/test/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hardhat:
+    name: Hardhat compile and behavior tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: contracts/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Run behavior tests
+        run: npm test

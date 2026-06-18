@@ -1,0 +1,255 @@
+{
+  "rapha": {
+    "min_cohort_size": 25,
+    "max_phi_retention_days": 30,
+    "allowed_data_purposes": [
+      "clinical_text_lora_fine_tuning",
+      "imaging_classifier_fine_tuning"
+    ],
+    "allowed_data_formats": [
+      "ehr_text",
+      "medical_imaging"
+    ],
+    "allowed_workload_types": [
+      "llm_lora",
+      "vision_classifier"
+    ],
+    "allowed_requester_roles": [
+      "hospital_data_controller",
+      "hospital_security_officer",
+      "rapha_edge_operator"
+    ],
+    "allowed_processing_roles": [
+      "business_associate",
+      "data_processor",
+      "technology_supplier"
+    ],
+    "required_regulatory_frameworks": [
+      "hipaa",
+      "nhs_dspt"
+    ],
+    "allowed_egress_domains": [
+      "polygon-bor.publicnode.com",
+      "api.reclaimprotocol.org"
+    ],
+    "allowed_polygon_rpc_endpoint": "https://polygon-bor.publicnode.com",
+    "allowed_polygon_contracts": [
+      "0xb27704ca8a01bc151181d1d53e2f0ef11b39b32f",
+      "0xa46a07fbbd6f24e8ea178ae150118a9b425b0947",
+      "0xd12f32169d9a32789a36a53c6f1436d28e8d03bd"
+    ],
+    "allowed_output_files": [
+      "adapter_config.json",
+      "adapter_model.safetensors",
+      "trained_weights.pt",
+      "training_metrics.json",
+      "receipt.json"
+    ],
+    "required_legal_controls": [
+      {
+        "id": "HIPAA-SEC-164.308-A1IIA-RISK-ANALYSIS",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(1)(ii)(A)",
+        "control": "Documented risk analysis for the Edge IPC PHI workload."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A1IIB-RISK-MANAGEMENT",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(1)(ii)(B)",
+        "control": "Risk management measures approved for the Edge IPC PHI workload."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A1IID-ACTIVITY-REVIEW",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(1)(ii)(D)",
+        "control": "Information system activity review and audit-log review process documented."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A2-SECURITY-RESPONSIBILITY",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(2)",
+        "control": "Named security official or equivalent accountable owner approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A3-WORKFORCE-SECURITY",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(3)",
+        "control": "Workforce authorization, clearance, and termination controls approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A4-INFO-ACCESS-MGMT",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(4)",
+        "control": "Information access management and minimum-role access controls approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A5-SECURITY-AWARENESS",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(5)",
+        "control": "Security awareness, malicious software, login monitoring, and password management program approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A6-INCIDENT-RESPONSE",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(6)",
+        "control": "Security incident response, mitigation, and documentation procedure approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A7-CONTINGENCY",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(7)",
+        "control": "Backup, disaster recovery, emergency mode, and contingency plan approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-A8-EVALUATION",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(a)(8)",
+        "control": "Periodic technical and nontechnical evaluation procedure approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.308-B-BAA",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.308(b)",
+        "control": "Business associate contract or equivalent satisfactory assurance executed."
+      },
+      {
+        "id": "HIPAA-SEC-164.310-A-FACILITY-ACCESS",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.310(a)",
+        "control": "Facility access controls for Edge IPC location approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.310-B-C-WORKSTATION",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.310(b)-(c)",
+        "control": "Workstation use and workstation security controls approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.310-D-DEVICE-MEDIA",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.310(d)",
+        "control": "Device and media controls for receipt, removal, disposal, reuse, accountability, and backup approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.312-A-ACCESS-CONTROL",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.312(a)",
+        "control": "Technical access control, unique identity, emergency access, logoff, and encryption controls approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.312-B-AUDIT-CONTROLS",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.312(b)",
+        "control": "Audit control mechanisms for systems containing or using ePHI approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.312-C-INTEGRITY",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.312(c)",
+        "control": "Integrity controls against improper ePHI alteration or destruction approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.312-D-AUTHENTICATION",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.312(d)",
+        "control": "Person or entity authentication controls approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.312-E-TRANSMISSION",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.312(e)",
+        "control": "Transmission security, integrity controls, and encryption controls approved."
+      },
+      {
+        "id": "HIPAA-SEC-164.316-DOCUMENTATION",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.316",
+        "control": "Policies, procedures, documentation retention, availability, and update process approved."
+      },
+      {
+        "id": "HIPAA-PRI-164.502-A-PERMITTED-USE",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.502(a)",
+        "control": "Permitted or required PHI use/disclosure basis approved for the workload purpose."
+      },
+      {
+        "id": "HIPAA-PRI-164.502B-164.514D-MINIMUM-NECESSARY",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.502(b), 164.514(d)",
+        "control": "Minimum necessary policy and dataset limitation approved."
+      },
+      {
+        "id": "HIPAA-PRI-164.508-AUTHORIZATION-CONSENT",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.508",
+        "control": "Authorization, consent, waiver, or other approved permission basis documented."
+      },
+      {
+        "id": "HIPAA-BREACH-164.400-414-BREACH-NOTIFICATION",
+        "framework": "hipaa",
+        "citation": "45 CFR 164.400-414",
+        "control": "Breach assessment and notification procedure approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-1-LEGAL-CONFIDENTIAL-DATA",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 1",
+        "control": "Personal confidential data handling basis and confidentiality obligations approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-2-STAFF-RESPONSIBILITIES",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 2",
+        "control": "Staff responsibilities, accountability, and acceptable-use obligations approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-3-STAFF-TRAINING",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 3",
+        "control": "Data security and protection training evidence approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-4-MANAGING-DATA-ACCESS",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 4",
+        "control": "Access management, role-based access, and privileged-access controls approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-5-PROCESS-REVIEWS",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 5",
+        "control": "Process review, near-miss, and breach-learning process approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-6-CYBER-ATTACKS",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 6",
+        "control": "Cyber attack prevention, detection, response, and vulnerability management approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-7-CONTINUITY",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 7",
+        "control": "Continuity, backup, disaster recovery, and service restoration controls approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-8-UNSUPPORTED-SYSTEMS",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 8",
+        "control": "Unsupported system and software exception process approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-9-IT-PROTECTION",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 9",
+        "control": "Secure configuration, malware protection, network security, and monitoring controls approved."
+      },
+      {
+        "id": "NHS-DSPT-NDG-10-SUPPLIERS",
+        "framework": "nhs_dspt",
+        "citation": "NHS DSPT National Data Guardian Standard 10",
+        "control": "Supplier assurance, contract, and data-processing obligations approved."
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "usdc": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+  "nodeRegistry": "0x19432C08a4806f961D0ec589c6B68fe258E34d07",
+  "clearingVault": "0x952F6d72fA210C73A9e1A9bf171B27488cF6Aa3C",
+  "trustedAttestor": "0x4Fee2A43e3c9A898dbFDC895C6965609205fD543",
+  "raphaTreasuryWallet": "0x0C15430793e4a458f7Aa8C7608F9a96707FEb5C5",
+  "deployer": "0xc8F8e014d202D8D1377F4DDBA9eed23BF16180D3",
+  "deployedAt": "2026-05-21T14:34:51.567Z"
+}

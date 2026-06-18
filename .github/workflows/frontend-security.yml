@@ -1,0 +1,54 @@
+name: Frontend Security
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/frontend-security.yml"
+      - "frontend-app/package.json"
+      - "frontend-app/package-lock.json"
+      - "frontend-app/scripts/**"
+      - "frontend-app/src/**"
+      - "frontend-app/public/**"
+  pull_request:
+    paths:
+      - ".github/workflows/frontend-security.yml"
+      - "frontend-app/package.json"
+      - "frontend-app/package-lock.json"
+      - "frontend-app/scripts/**"
+      - "frontend-app/src/**"
+      - "frontend-app/public/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-build:
+    name: npm audit and production build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-app
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend-app/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Enforce production audit (critical only)
+        run: npm audit --omit=dev --audit-level=critical
+
+      - name: Enforce full audit (critical only)
+        run: npm audit --audit-level=critical
+
+      - name: Build frontend
+        run: npm run build
